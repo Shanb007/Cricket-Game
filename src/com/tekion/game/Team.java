@@ -1,10 +1,14 @@
 package com.tekion.game;
 
+import java.util.Random;
+
 public class Team {
     String teamName;
-    int currentOver=0;
+    int currentOver=1;
     int teamScore=0;
     int wicketsFallen=0;
+    int NoBall=0;
+    int WideBall=0;
 
     void setTeamName(String T){
         this.teamName = T;
@@ -27,7 +31,36 @@ void wicketGone() {
 
   int totalWicketsGone() {
         return wicketsFallen;
+    }
 
+    int TotalNoBalls(){
+        return NoBall;
+    }
+    void NoBallTracker(){
+        NoBall++;
+    }
+
+    int TotalWideBalls(){
+        return WideBall;
+    }
+
+    void WideBallTracker(){
+        WideBall++;
+    }
+    int currentOver(){
+        return currentOver;
+    }
+
+    void currentOverCalculator(){
+        currentOver++;
+    }
+
+    int currentBallOutcome(){
+        Random N = new Random();
+        return N.nextInt(10);
+    }
+    int TotalExtras(){
+        return NoBall + WideBall;
     }
 }
 
