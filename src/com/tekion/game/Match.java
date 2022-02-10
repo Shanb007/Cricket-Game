@@ -77,7 +77,7 @@ private void firstInnings(Team TeamBatFirst, int overs){
             TeamBatFirst.TeamScoreCalculator(currentBall);
         }
         else if (currentBall == 7){
-            TeamBatFirst.wicketGone();
+            TeamBatFirst.wicketGoneTracker();
             //new player to enter
         }
         else if (currentBall == 8){
@@ -113,18 +113,18 @@ private void firstInnings(Team TeamBatFirst, int overs){
             if (currentBall <= 6){
                 TeamBatSecond.TeamScoreCalculator(currentBall);
             }
-            else if (currentBall == 7){
-                TeamBatSecond.wicketGone();
+            if (currentBall == 7){
+                TeamBatSecond.wicketGoneTracker();
                 //new player to enter
             }
-            else if (currentBall == 8){
+            if (currentBall == 8){
                 TeamBatSecond.WideBallTracker();
-                TeamBatFirst.TeamScoreCalculator(1);
+                TeamBatSecond.TeamScoreCalculator(1);
                 i--;
             }
             else {
                 TeamBatSecond.NoBallTracker();
-                TeamBatFirst.TeamScoreCalculator(1);
+                TeamBatSecond.TeamScoreCalculator(1);
                 i--;
             }
 

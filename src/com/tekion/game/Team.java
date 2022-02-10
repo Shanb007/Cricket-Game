@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Team {
     String teamName;
-    int currentOver=1;
+    int currentOver=0;
     int teamScore=0;
     int wicketsFallen=0;
     int NoBall=0;
@@ -25,7 +25,7 @@ int TeamScore() {
 void TeamScoreCalculator(int currentBallScore) {
         teamScore += currentBallScore;
     }
-void wicketGone() {
+void wicketGoneTracker() {
     wicketsFallen++;
 }
 
