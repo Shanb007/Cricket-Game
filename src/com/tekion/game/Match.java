@@ -17,15 +17,11 @@ public void matchDeclaration() {
     while(t1 == t2){
         t2 = N.nextInt(teamName.length);
     }
-   // System.out.println("The Match: " + teamName[t1] + " V/S " + teamName[t2]);
     FirstTeam.setTeamName(teamName[t1]);
     SecondTeam.setTeamName(teamName[t2]);
     System.out.println("The Match: " + FirstTeam.getTeam() + " V/S " + SecondTeam.getTeam());
 }
 public void startTheMatch(int overs) {
-    //Over o = new Over();
-    //int TotalOvers = o.TotalOvers();
-    //int TotalBalls = overs * 6;
     Random N = new Random();
     int toss = N.nextInt(2);
     System.out.println("Toss Results: " + toss);
@@ -54,11 +50,10 @@ public void startTheMatch(int overs) {
             secondInnings(FirstTeam,SecondTeam,overs);
         }
     }
-//score2 = t.battingTeamScored(TotalBalls);
 }
 
 private void firstInnings(Team TeamBatFirst, int overs){
-    System.out.println("1st Innings: ");
+    System.out.print("1st Innings: ");
     Over o = new Over();
     int i ;
     //int W =0;
@@ -68,11 +63,11 @@ private void firstInnings(Team TeamBatFirst, int overs){
         }
         int currentBall = o.currentBallOutcome();
         if (currentBall <= 6){
-            //System.out.println("score at each ball: " + currentBall);
             TeamBatFirst.TeamScoreCalculator(currentBall);
         }
         else {
             TeamBatFirst.wicketGone();
+            //new player to enter
         }
         if (TeamBatFirst.totalWicketsGone() == 10){
             break;
@@ -82,7 +77,7 @@ private void firstInnings(Team TeamBatFirst, int overs){
 }
 
     private void secondInnings(Team TeamBatSecond, Team TeamBatFirst, int overs){
-        System.out.println("2nd Innings: ");
+        System.out.print("2nd Innings: ");
         Over o = new Over();
         int i ;
         //int W =0;
@@ -92,11 +87,11 @@ private void firstInnings(Team TeamBatFirst, int overs){
             }
             int currentBall = o.currentBallOutcome();
             if (currentBall <= 6){
-                //System.out.println("score at each ball: " + currentBall);
                 TeamBatSecond.TeamScoreCalculator(currentBall);
             }
             else {
                 TeamBatSecond.wicketGone();
+                //new player to enter
             }
             if (TeamBatSecond.totalWicketsGone() == 10 || TeamBatSecond.TeamScore() > TeamBatFirst.TeamScore()){
                 break;
