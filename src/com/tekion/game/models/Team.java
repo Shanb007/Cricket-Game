@@ -1,6 +1,4 @@
-package com.tekion.game;
-
-import java.util.Random;
+package com.tekion.game.models;
 
 public class Team {
     String teamName;
@@ -55,10 +53,6 @@ void wicketGoneTracker() {
         currentOver++;
     }
 
-    int currentBallOutcome(){
-        Random N = new Random();
-        return N.nextInt(10);
-    }
     int TotalExtras(){
         return NoBall + WideBall;
     }

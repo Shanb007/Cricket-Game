@@ -1,10 +1,10 @@
-package com.tekion.game;
+package com.tekion.game.models;
 
 import java.util.Random;
 
 public class Umpire {
-String[] umpires = {"Suresh Shastri", "Aleem Dar", "Billy Bowden"};
-int u1, u2, u3;
+private final String[] umpires = {"Suresh Shastri", "Aleem Dar", "Billy Bowden"};
+ private int u1, u2, u3;
 
 void SetFirstUmpire(){
     Random N  = new Random();

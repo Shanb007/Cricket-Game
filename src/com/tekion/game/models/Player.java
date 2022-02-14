@@ -1,4 +1,4 @@
-package com.tekion.game;
+package com.tekion.game.models;
 
 public class Player {
 String PlayerName;
@@ -8,7 +8,7 @@ int BallsPlayed=0;
 int wicketsTaken=0;
 int numberOf6s =0;
 int numberOf4s = 0;
-int maidenOver = 0;
+//int maidenOver = 0;
 
 
 void setPlayerName(String name){
@@ -49,13 +49,13 @@ void trackNoOf6s(){
     numberOf6s++;
 }
 
-    int getNumberOf4s(){
-        return numberOf4s;
-    }
+int getNumberOf4s(){
+    return numberOf4s;
+}
 
-    void trackNoOf4s(){
-        numberOf4s++;
-    }
+void trackNoOf4s(){
+    numberOf4s++;
+}
 
 int getWicketsTaken(){
     return wicketsTaken;
@@ -64,6 +64,5 @@ int getWicketsTaken(){
 void wicketTracker(){
     wicketsTaken++;
 }
-
 
 }
