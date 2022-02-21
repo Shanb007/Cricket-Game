@@ -7,6 +7,7 @@ public class Team {
     int wicketsFallen=0;
     int NoBall=0;
     int WideBall=0;
+    int extraScore = 0;
 
     void setTeamName(String T){
         this.teamName = T;
@@ -55,6 +56,14 @@ void wicketGoneTracker() {
 
     int TotalExtras(){
         return NoBall + WideBall;
+    }
+
+    int getExtraScore(){
+        return extraScore;
+    }
+
+    void ExtraScoreTracker(int score){
+        extraScore+=score;
     }
 }
 
