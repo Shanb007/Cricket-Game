@@ -1,5 +1,7 @@
 package com.tekion.game.models;
 
+import com.tekion.game.service.InningsService;
+
 import java.util.*;
 
 public class Match {
@@ -45,13 +47,14 @@ public void matchDeclaration() {
 }
 
 public void startTheMatch(int overs) {
-    Inning inning = new Inning();
-System.out.println("1st Innings:");
-Inning.firstInnings(FirstInningsTeam,overs);
-System.out.println("2nd Innings:");
-Inning.secondInnings(SecondInningsTeam,FirstInningsTeam,overs);
+    inningsStarts(overs);
 ShowResults();
 }
+
+    private void inningsStarts(int overs){
+        InningsService StartInnings = new InningsService();
+        StartInnings.InningsStart(FirstInningsTeam,SecondInningsTeam,overs);
+    }
 
 private void ShowResults(){
     System.out.println();

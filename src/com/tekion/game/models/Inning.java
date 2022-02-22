@@ -1,12 +1,17 @@
 package com.tekion.game.models;
 
+import com.tekion.game.service.ScoreBoardService;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Inning {
+    public void InitiateFirstInnings(Team team, int overs){
+        firstInnings(team, overs);
+    }
 
-    static void firstInnings(Team FirstInningsTeam, int overs) {
+    private void firstInnings(Team FirstInningsTeam, int overs) {
         int currentOnStrike = 0;
         int currentNotOnStrike = 1;
         int currentBowler = 0;
@@ -21,7 +26,6 @@ public class Inning {
         String name2 = sc.next();
         playing11.add(new Player(name2));
         Strike strike = new Strike();
-        ScoreBoard scoreBoard = new ScoreBoard();
         ArrayList<Player> bowlers = new ArrayList<>();
         System.out.print("Enter the bowler's name: ");
         String bowlerName = sc.next();
@@ -112,10 +116,14 @@ public class Inning {
             }
         }
             //System.out.println(FirstInningsTeam.getTeam() + " scored " + FirstInningsTeam.TeamScore() + " with loss of " + FirstInningsTeam.totalWicketsGone()+ " wickets.");
-            scoreBoard.viewScoreBoard(FirstInningsTeam, playing11, bowlers, "1st");
+        ScoreBoardService.displayScoreCard(FirstInningsTeam, playing11, bowlers, "1st");
     }
 
-    static void secondInnings(Team SecondInningsTeam , Team FirstInningsTeam, int overs){
+    public void InitiateSecondInnings(Team team2, Team team1, int overs){
+        secondInnings(team2,team1, overs);
+    }
+
+    private void secondInnings(Team SecondInningsTeam, Team FirstInningsTeam, int overs){
         int currentOnStrike = 0;
         int currentNotOnStrike = 1;
         int currentBowler = 0;
@@ -219,7 +227,9 @@ public class Inning {
                 break;
             }
         }
-        scoreBoard.viewScoreBoard(SecondInningsTeam,playing11, bowlers, "2nd");
+       // scoreBoard.viewScoreBoard();
+        ScoreBoardService.displayScoreCard(SecondInningsTeam,playing11, bowlers, "2nd");
+
     }
 
 }

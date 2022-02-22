@@ -3,8 +3,11 @@ package com.tekion.game.models;
 import java.util.ArrayList;
 
 public class ScoreBoard {
+    public void showScoreBoard(Team team, ArrayList<Player> players, ArrayList<Player> bowl, String inning){
+        viewScoreBoard(team,players,bowl,inning);
+    }
 
-    void viewScoreBoard(Team team, ArrayList<Player> players, ArrayList<Player> bowl, String inning){
+    private void viewScoreBoard(Team team, ArrayList<Player> players, ArrayList<Player> bowl, String inning){
         System.out.println();
     System.out.println(team.getTeam()+ " scored " + team.TeamScore() + " at loss of " + team.totalWicketsGone() + " wickets.");
     System.out.println("ScoreCard after "+ inning + " Innings:");
