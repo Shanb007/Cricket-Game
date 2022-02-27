@@ -1,12 +1,12 @@
 package com.tekion.game.models;
 
 public class Batsman {
-    private  double StrikeRate;
-    private int NoOf50s;
-    private int NoOf100s;
-    private String BatsmanHanded;
-    private int TotalMatchesPlayed;
-    private int TotalRunsSoFar;
+   private  double StrikeRate;
+   private int NoOf50s;
+   private int NoOf100s;
+   private String BatsmanHanded;
+   private int TotalMatchesPlayed;
+   private int TotalRunsSoFar;
 
     void setStrikeRate(double SR){
         StrikeRate = SR;

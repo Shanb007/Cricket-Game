@@ -11,7 +11,7 @@ public class GameService {
             Match NewMatch = new Match();
             NewMatch.matchDeclaration();
             Scanner sc = new Scanner(System.in);
-            System.out.print("\nEnter The number of overs: ");
+            System.out.print("Enter The number of overs: ");
             overs = sc.nextInt();
             NewMatch.startTheMatch(overs);
             System.out.println("Want another match ? (Y/N)");

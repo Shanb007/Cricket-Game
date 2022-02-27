@@ -1,46 +1,44 @@
 package com.tekion.game.models;
 
 public class Team {
-    private String teamName;
-    private int currentOver=0;
-    private int teamScore=0;
-    private int wicketsFallen=0;
-    private int NoBall=0;
-    private int WideBall=0;
-    private int extraScore = 0;
+    String teamName;
+    int currentOver=0;
+    int teamScore=0;
+    int wicketsFallen=0;
+    int NoBall=0;
+    int WideBall=0;
 
     void setTeamName(String T){
         this.teamName = T;
     }
 
-    public String getTeam(){
+    String getTeam(){
         return teamName;
     }
 
-    public int TeamScore() {
-        return teamScore;
-    }
 
-    void TeamScoreCalculator(int currentBallScore) {
+int TeamScore() {
+    return teamScore;
+}
+void TeamScoreCalculator(int currentBallScore) {
         teamScore += currentBallScore;
     }
+void wicketGoneTracker() {
+    wicketsFallen++;
+}
 
-    void wicketGoneTracker() {
-        wicketsFallen++;
-    }
-
-    public int totalWicketsGone() {
+  int totalWicketsGone() {
         return wicketsFallen;
     }
 
-    public int TotalNoBalls(){
+    int TotalNoBalls(){
         return NoBall;
     }
     void NoBallTracker(){
         NoBall++;
     }
 
-    public int TotalWideBalls(){
+    int TotalWideBalls(){
         return WideBall;
     }
 
@@ -55,16 +53,8 @@ public class Team {
         currentOver++;
     }
 
-    public int TotalExtras(){
+    int TotalExtras(){
         return NoBall + WideBall;
-    }
-
-    public int getExtraScore(){
-        return extraScore;
-    }
-
-    void ExtraScoreTracker(int score){
-        extraScore+=score;
     }
 }
 
