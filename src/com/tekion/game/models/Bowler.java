@@ -1,13 +1,13 @@
 package com.tekion.game.models;
 
 public class Bowler {
-private double Econ;
-private int noOf5w;
-private int noOf10w;
-private int TotalWicketsTakenSoFar;
-private int TotalMatchesPlayed;
-private String BowlerHanded;
-private String BowlerType;
+    private double Econ;
+    private int noOf5w;
+    private int noOf10w;
+    private int TotalWicketsTakenSoFar;
+    private int TotalMatchesPlayed;
+    private String BowlerHanded;
+    private String BowlerType;
 
     void setEcon(double econ){
         Econ = econ;

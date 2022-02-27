@@ -4,11 +4,13 @@ import com.tekion.game.models.Inning;
 import com.tekion.game.models.Team;
 
 public class InningsService {
-    public void InningsStart(Team team1,Team team2, int overs){
-        Inning inning = new Inning();
-        System.out.println("1st Innings:");
-        inning.InitiateFirstInnings(team1,overs);
+
+    public static void InningsStart(Team team1,Team team2, int overs){
+        Inning FirstInning = new Inning();
+        System.out.println("\n1st Innings:");
+        FirstInning.InitiateInnings(team1,team2,overs,"1st");
+        Inning SecondInning = new Inning();
         System.out.println("2nd Innings:");
-        inning.InitiateSecondInnings(team2,team1,overs);
+        SecondInning.InitiateInnings(team2,team1,overs,"2nd");
     }
 }

@@ -1,235 +1,184 @@
 package com.tekion.game.models;
 
 import com.tekion.game.service.ScoreBoardService;
+import com.tekion.game.service.StrikeService;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Inning {
-    public void InitiateFirstInnings(Team team, int overs){
-        firstInnings(team, overs);
+    private int currentOnStrike = 0;
+    private int currentNotOnStrike = 1;
+    private int currentBowler = 0;
+    private final ArrayList<String> wicketFallTrack = new ArrayList<>();
+
+    public void InitiateInnings(Team bat, Team ball, int overs, String inning){
+        playInnings(bat,ball,overs,inning);
     }
 
-    private void firstInnings(Team FirstInningsTeam, int overs) {
-        int currentOnStrike = 0;
-        int currentNotOnStrike = 1;
-        int currentBowler = 0;
-        Scanner sc = new Scanner(System.in);
-        Random N = new Random();
+    private void playInnings(Team BatTeam, Team BowlTeam, int overs, String inning) {
+        Random randomOutcome = new Random();
         ArrayList<Player> playing11 = new ArrayList<>();
-        System.out.print("Enter the player name to bat (on strike): ");
-        String name1 = sc.next();
-        playing11.add(new Player(name1));
-
-        System.out.print("Enter the player name to bat second (on non-strike end): ");
-        String name2 = sc.next();
-        playing11.add(new Player(name2));
-        Strike strike = new Strike();
         ArrayList<Player> bowlers = new ArrayList<>();
-        System.out.print("Enter the bowler's name: ");
-        String bowlerName = sc.next();
-        bowlers.add(new Player(bowlerName));
+
+        setUpPlayers(playing11,bowlers);
+
+        System.out.println("\n"+(BatTeam.currentOver() + 1)+ " over begins: ");
+        System.out.println("Batsman on Strike: "+ playing11.get(currentOnStrike).getName()+"\n"+"Batsman on Non-Striker end: "+playing11.get(currentNotOnStrike).getName());
 
         for (int ball = 1; ball <= overs * 6; ball++) {
-            bowlers.get(currentBowler).OversBowledTracker();
-            if (ball % 6 == 0 && ball != overs * 6) {
-                FirstInningsTeam.currentOverCalculator();
-                strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                currentOnStrike = strike.OnStrike();
-                currentNotOnStrike = strike.NotOnStrike();
-                System.out.print("Enter the bowler's name: ");
-                String newBowlerName = sc.next();
-                // check if bowler already present
-                int flag = 0;
-                for (int bowler = 0; bowler < bowlers.size(); bowler++) {
-                    if (newBowlerName.equals(bowlers.get(bowler).getName()) && bowlers.get(bowler).getOversBowled() <= (double) overs / 5) {
-                        currentBowler = bowler;
-                        flag = 1;
-                        break;
-                    }
-                }
-                if (flag == 0) {
-                    bowlers.add(new Player(newBowlerName));
-                    currentBowler = bowlers.size() - 1;
-                }
-            }
             Ball playBall = new Ball();
-            int currentBall = N.nextInt(10);
+            int currentBall = randomOutcome.nextInt(10);
             switch (currentBall) {
                 case 0:
-                    playing11.get(currentOnStrike).BallsPlayedTracker();
-                    FirstInningsTeam.TeamScoreCalculator(playBall.wicket());
-                    FirstInningsTeam.wicketGoneTracker();
-                    bowlers.get(currentBowler).wicketTracker();
-                    System.out.print("Enter the " + FirstInningsTeam.totalWicketsGone() + " wicket down player, to bat: ");
-                    String newOnField = sc.next();
-                    playing11.add(new Player(newOnField));
-                    strike.changeCurrentOnStrike(FirstInningsTeam.totalWicketsGone());
-                    currentOnStrike = strike.OnStrike();
-                    currentNotOnStrike = strike.NotOnStrike();
+                    gotWicket(BatTeam,playing11,bowlers,playBall);
                     break;
                 case 2:
-                    int noBall = playBall.NoBall();
-                    bowlers.get(currentBowler).NoBallsBowledTracker();
-                    bowlers.get(currentBowler).runsGivenTracker(noBall);
-                    FirstInningsTeam.TeamScoreCalculator(noBall);
-                    FirstInningsTeam.ExtraScoreTracker(noBall);
-                    FirstInningsTeam.NoBallTracker();
-                    if (noBall % 2 == 0) {
-                        strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                    }
+                    NoBall(BatTeam,bowlers,playBall);
+                    ball--;
                     break;
                 case 3:
-                    int wideB = playBall.wideBall();
-                    bowlers.get(currentBowler).WideBallsBowledTracker();
-                    bowlers.get(currentBowler).runsGivenTracker(wideB);
-                    FirstInningsTeam.TeamScoreCalculator(wideB);
-                    FirstInningsTeam.ExtraScoreTracker(wideB);
-                    FirstInningsTeam.WideBallTracker();
-                    if (wideB % 2 == 0) {
-                        strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                    }
+                    WideBall(BatTeam,bowlers,playBall);
+                    ball--;
                     break;
                 default:
-                    playing11.get(currentOnStrike).BallsPlayedTracker();
-                    int score = playBall.runs();
-                    if (score % 2 == 0) {
-                        playing11.get(currentOnStrike).runTracker(score);
-                        if (score == 4) {
-                            playing11.get(currentOnStrike).trackNoOf4s();
-                        }
-                        if (score == 6) {
-                            playing11.get(currentOnStrike).trackNoOf6s();
-                        }
-                    } else {
-                        playing11.get(currentOnStrike).runTracker(score);
-                        strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                    }
-                    currentOnStrike = strike.OnStrike();
-                    currentNotOnStrike = strike.NotOnStrike();
-                    FirstInningsTeam.TeamScoreCalculator(score);
-                    bowlers.get(currentBowler).runsGivenTracker(score);
+                    madeRuns(BatTeam,playing11,bowlers,playBall);
             }
-            if (FirstInningsTeam.totalWicketsGone() == 10) {
+            if (bowlers.get(currentBowler).getBallsBowled() % 6 == 0 && ball != overs * 6 && bowlers.get(currentBowler).getBallsBowled()!=0 && currentBall != 3 && currentBall != 2) {
+                //System.out.println(ball);
+                System.out.println("\nScoreBoard after "+ (BatTeam.currentOver() + 1) + " overs.");
+                ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
+                overChange(BatTeam,bowlers,overs);
+                System.out.println("\n"+(BatTeam.currentOver() + 1)+ " over begins: ");
+                System.out.println("Batsman on Strike: "+ playing11.get(currentOnStrike).getName()+"\n"+"Batsman on Non-Striker end: "+playing11.get(currentNotOnStrike).getName());
+            }
+            if (ball == overs*6){
+                System.out.println("ScoreBoard after "+ BatTeam.currentOver() + " overs.");
+                ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
+            }
+            if (inning.equals("1st") && BatTeam.totalWicketsGone() == 10) {
+                break;
+            }
+            if (inning.equals("2nd") && (BatTeam.totalWicketsGone() == 10 || BatTeam.TeamScore() > BowlTeam.TeamScore())){
                 break;
             }
         }
-            //System.out.println(FirstInningsTeam.getTeam() + " scored " + FirstInningsTeam.TeamScore() + " with loss of " + FirstInningsTeam.totalWicketsGone()+ " wickets.");
-        ScoreBoardService.displayScoreCard(FirstInningsTeam, playing11, bowlers, "1st");
+        ScoreBoardService.showScoreBoard(BatTeam, playing11, bowlers, inning, wicketFallTrack);
     }
 
-    public void InitiateSecondInnings(Team team2, Team team1, int overs){
-        secondInnings(team2,team1, overs);
-    }
-
-    private void secondInnings(Team SecondInningsTeam, Team FirstInningsTeam, int overs){
-        int currentOnStrike = 0;
-        int currentNotOnStrike = 1;
-        int currentBowler = 0;
+    private void setUpPlayers(ArrayList<Player> playing11, ArrayList<Player> bowlers){
         Scanner sc = new Scanner(System.in);
-        Random N = new Random();
-        ArrayList<Player> playing11 = new ArrayList<>();
         System.out.print("Enter the player name to bat (on strike): ");
-        String name1 = sc.next();
-        playing11.add(new Player(name1));
-
-        System.out.print("Enter the player name to bat second (on non-strike end): ");
-        String name2 = sc.next();
-        playing11.add(new Player(name2));
-        Strike strike = new Strike();
-        ScoreBoard scoreBoard = new ScoreBoard();
-        ArrayList<Player> bowlers = new ArrayList<>();
-        System.out.print("Enter the bowler's name: ");
+        String batsman1 = sc.next();
+        playing11.add(new Player(batsman1));
+        System.out.print("Enter the player name to bat second (Non-Striker end): ");
+        String batsman2 = sc.next();
+        playing11.add(new Player(batsman2));
+        System.out.print("1st over will be bowled by: ");
         String bowlerName = sc.next();
         bowlers.add(new Player(bowlerName));
-        for(int ball=1;ball<=overs*6;ball++){
-            if (ball%6 == 0 && ball != overs*6){
-                SecondInningsTeam.currentOverCalculator();
-                strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                currentOnStrike = strike.OnStrike();
-                currentNotOnStrike = strike.NotOnStrike();
-                System.out.print("Enter the bowler's name: ");
-                String newBowlerName = sc.next();
-                // check if bowler already present
-                int flag = 0;
-                for(int bowler=0;bowler<bowlers.size();bowler++){
-                    if (newBowlerName.equals(bowlers.get(bowler).getName()) && bowlers.get(bowler).getOversBowled() <= (double) overs/5){
-                            currentBowler = bowler;
-                            flag = 1;
-                            break;
-                        }
-                }
-                if (flag==0){
-                    bowlers.add(new Player(newBowlerName));
-                    currentBowler = bowlers.size() - 1 ;
-                }
+    }
+
+    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall){
+        bowlingTeam.get(currentBowler).BallsBowledTracker();
+        System.out.println("\nWICKET !!!! and it's a wicket " + battingTeam.get(currentOnStrike).getName() + " has to make his way back to pavilion.");
+        battingTeam.get(currentOnStrike).setWicketTakenBy(bowlingTeam.get(currentBowler).getName());
+        Scanner sc = new Scanner(System.in);
+        battingTeam.get(currentOnStrike).BallsPlayedTracker();
+        team.TeamScoreCalculator(playBall.wicket());
+        team.wicketGoneTracker();
+        bowlingTeam.get(currentBowler).wicketTracker();
+        wicketFallTrack.add(team.TeamScore() +"-"+team.totalWicketsGone());
+        System.out.println("\nScoreboard after the fall of " + team.totalWicketsGone()+" wickets: ");
+        ScoreBoardService.showScoreBoardAfterWicketOROver(battingTeam,bowlingTeam);
+        System.out.print("\nEnter the " + team.totalWicketsGone() + " wicket down player, to bat: ");
+        String newOnField = sc.next();
+        battingTeam.add(new Player(newOnField));
+        StrikeService.changeCurrentOnStrike((team.totalWicketsGone()+1));
+        currentOnStrike = StrikeService.OnStrike();
+        currentNotOnStrike = StrikeService.NotOnStrike();
+    }
+
+
+    private void madeRuns(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall){
+        bowlingTeam.get(currentBowler).BallsBowledTracker();
+        battingTeam.get(currentOnStrike).BallsPlayedTracker();
+        int score = playBall.runs();
+        if (score % 2 == 0) {
+            battingTeam.get(currentOnStrike).runTracker(score);
+            if (score == 4) {
+                battingTeam.get(currentOnStrike).trackNoOf4s();
             }
-            Ball playBall = new Ball();
-            int currentBall = N.nextInt(10);
-            switch (currentBall){
-                case 0:
-                    playing11.get(currentOnStrike).BallsPlayedTracker();
-                    SecondInningsTeam.TeamScoreCalculator(playBall.wicket());
-                    SecondInningsTeam.wicketGoneTracker();
-                    bowlers.get(currentBowler).wicketTracker();
-                    System.out.print("Enter the "+ SecondInningsTeam.totalWicketsGone() + " wicket down player, to bat: ");
-                    String newOnField = sc.next();
-                    playing11.add(new Player(newOnField));
-                    strike.changeCurrentOnStrike(FirstInningsTeam.totalWicketsGone());
-                    currentOnStrike = strike.OnStrike();
-                    currentNotOnStrike = strike.NotOnStrike();
-                    break;
-                case 2:
-                    int noBall = playBall.NoBall();
-                    bowlers.get(currentBowler).NoBallsBowledTracker();
-                    bowlers.get(currentBowler).runsGivenTracker(noBall);
-                    SecondInningsTeam.TeamScoreCalculator(noBall);
-                    SecondInningsTeam.ExtraScoreTracker(noBall);
-                    SecondInningsTeam.NoBallTracker();
-                    if (noBall%2==0){
-                        strike.changeStrike(currentOnStrike,currentNotOnStrike);
-                    }
-                    break;
-                case 3:
-                    int wideB = playBall.wideBall();
-                    bowlers.get(currentBowler).WideBallsBowledTracker();
-                    bowlers.get(currentBowler).runsGivenTracker(wideB);
-                    SecondInningsTeam.TeamScoreCalculator(wideB);
-                    SecondInningsTeam.ExtraScoreTracker(wideB);
-                    SecondInningsTeam.WideBallTracker();
-                    if (wideB%2==0){
-                        strike.changeStrike(currentOnStrike,currentNotOnStrike);
-                    }
-                    break;
-                default:
-                    playing11.get(currentOnStrike).BallsPlayedTracker();
-                    int score = playBall.runs();
-                    if (score%2 == 0){
-                        playing11.get(currentOnStrike).runTracker(score);
-                        if (score == 4){
-                            playing11.get(currentOnStrike).trackNoOf4s();
-                        }
-                        if (score == 6){
-                            playing11.get(currentOnStrike).trackNoOf6s();
-                        }
-                    }
-                    else {
-                        playing11.get(currentOnStrike).runTracker(score);
-                        strike.changeStrike(currentOnStrike, currentNotOnStrike);
-                    }
-                    currentOnStrike = strike.OnStrike();
-                    currentNotOnStrike = strike.NotOnStrike();
-                    SecondInningsTeam.TeamScoreCalculator(score);
-                    bowlers.get(currentBowler).runsGivenTracker(score);
+            if (score == 6) {
+                battingTeam.get(currentOnStrike).trackNoOf6s();
             }
-            if (SecondInningsTeam.totalWicketsGone() == 10 || SecondInningsTeam.TeamScore() > FirstInningsTeam.TeamScore()){
+        } else {
+            battingTeam.get(currentOnStrike).runTracker(score);
+            StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
+        }
+        currentOnStrike = StrikeService.OnStrike();
+        currentNotOnStrike = StrikeService.NotOnStrike();
+        bowlingTeam.get(currentBowler).runsGivenTracker(score);
+        team.TeamScoreCalculator(score);
+    }
+
+
+    private void WideBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall){
+        int wideB = playBall.wideBall();
+        bowlingTeam.get(currentBowler).WideBallsBowledTracker();
+        bowlingTeam.get(currentBowler).runsGivenTracker(wideB);
+        team.TeamScoreCalculator(wideB);
+        team.ExtraScoreTracker(wideB);
+        team.WideBallTracker();
+        if (wideB % 2 == 0) {
+            StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
+        }
+    }
+
+
+    private void NoBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall){
+        int noBall = playBall.NoBall();
+        bowlingTeam.get(currentBowler).NoBallsBowledTracker();
+        bowlingTeam.get(currentBowler).runsGivenTracker(noBall);
+        team.TeamScoreCalculator(noBall);
+        team.ExtraScoreTracker(noBall);
+        team.NoBallTracker();
+        if (noBall % 2 == 0) {
+            StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
+        }
+    }
+
+
+    private void overChange(Team team, ArrayList<Player> bowlingTeam, int overs){
+        Scanner sc = new Scanner(System.in);
+        team.currentOverCalculator();
+        StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
+        currentOnStrike = StrikeService.OnStrike();
+        currentNotOnStrike = StrikeService.NotOnStrike();
+        if ((team.currentOver()+1)==2) {
+            System.out.print("\n"+(team.currentOver() + 1) + "nd over will be bowled by: ");
+        }
+        else if ((team.currentOver()+1)==3) {
+            System.out.print("\n"+(team.currentOver() + 1) + "rd over will be bowled by: ");
+        }
+        else{
+            System.out.print("\n"+(team.currentOver() + 1) + "th over will be bowled by: ");
+        }
+        String newBowlerName = sc.next();
+        // check if bowler already present
+        int flag = 0;
+        for (int bowler = 0; bowler < bowlingTeam.size(); bowler++) {
+            if (newBowlerName.equals(bowlingTeam.get(bowler).getName()) && bowlingTeam.get(bowler).getBallsBowled() <= (double) overs * 5) {
+                currentBowler = bowler;
+                flag = 1;
                 break;
             }
         }
-       // scoreBoard.viewScoreBoard();
-        ScoreBoardService.displayScoreCard(SecondInningsTeam,playing11, bowlers, "2nd");
-
+        if (flag == 0) {
+            bowlingTeam.add(new Player(newBowlerName));
+            currentBowler = bowlingTeam.size() - 1;
+        }
     }
 
 }

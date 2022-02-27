@@ -1,132 +1,114 @@
 package com.tekion.game.models;
 
 public class Player {
-private String PlayerName;
-//String PlayerCategory;
-private int runsScored;
-private int BallsPlayed;
-private int wicketsTaken;
-private int numberOf6s;
-private int numberOf4s;
-private int maidenOver;
-private double oversBowled;
-private double ballsBowled;
-private int noBallsBowled;
-private int wideBallsBowled;
-private int runsGiven;
+    private final String PlayerName;
+    private int runsScored;
+    private int BallsPlayed;
+    private int wicketsTaken;
+    private int numberOf6s;
+    private int numberOf4s;
+    private double ballsBowled;
+    private int noBallsBowled;
+    private int wideBallsBowled;
+    private int runsGiven;
+    private String wicketTakenBy;
 
-public Player(String name){
-    this.PlayerName = name;
-    this.runsScored = 0;
-    this.BallsPlayed = 0;
-    this.numberOf4s = 0;
-    this.numberOf6s = 0;
-    this.wicketsTaken = 0;
-    this.maidenOver = 0;
-    this.oversBowled = 0.0;
-    this.ballsBowled = 0.0;
-    this.noBallsBowled = 0;
-    this.wideBallsBowled= 0;
-    this.runsGiven = 0;
-}
-   /*
-
-    void setPlayerCategory(String cat){
-        PlayerCategory = cat;
-    }
-    String getPlayerCategory(){
-        return PlayerCategory;
+    public Player(String name){
+        this.PlayerName = name;
+        this.runsScored = 0;
+        this.BallsPlayed = 0;
+        this.numberOf4s = 0;
+        this.numberOf6s = 0;
+        this.wicketsTaken = 0;
+        this.ballsBowled = 0.0;
+        this.noBallsBowled = 0;
+        this.wideBallsBowled= 0;
+        this.runsGiven = 0;
+        this.wicketTakenBy = "NOT OUT";
     }
 
-    */
-String getName(){
-    return PlayerName;
-}
-
-int getRunsScored(){
-    return runsScored;
-}
-
-void runTracker(int score){
-    runsScored += score;
-}
-
-int TotalBallsPlayed(){
-    return BallsPlayed;
-}
-
-void BallsPlayedTracker(){
-    BallsPlayed ++;
-}
-
-int getNumberOf6s(){
-    return numberOf6s;
-}
-
-void trackNoOf6s(){
-    numberOf6s++;
-}
-
-int getNumberOf4s(){
-    return numberOf4s;
-}
-
-void trackNoOf4s(){
-    numberOf4s++;
-}
-
-int getWicketsTaken(){
-    return wicketsTaken;
-}
-
-void wicketTracker(){
-    wicketsTaken++;
-}
-
-int getMaidenOver(){
-    return maidenOver;
-}
-
-void MaidenOverTracker(){
-    maidenOver++;
-}
-
-int getNoBallsBowled(){
-    return noBallsBowled;
-}
-
-void NoBallsBowledTracker(){
-    noBallsBowled++;
-}
-
-int getWideBallsBowled(){
-    return wideBallsBowled;
-}
-
-void WideBallsBowledTracker(){
-    wideBallsBowled++;
-}
-
-double getOversBowled(){
-    return oversBowled;
-}
-
-void OversBowledTracker(){
-    ballsBowled++;
-    if (ballsBowled%6 == 0.0){
-        oversBowled = ballsBowled/6;
+    public String getName(){
+        return PlayerName;
     }
-    else{
-        oversBowled += (ballsBowled%6)/10;
+
+    public int getRunsScored(){
+        return runsScored;
     }
-}
 
-int getRunsGiven(){
-    return runsGiven;
-}
+    void runTracker(int score){
+        runsScored += score;
+    }
 
-void runsGivenTracker(int runs){
-    runsGiven += runs;
-}
+    public int TotalBallsPlayed(){
+        return BallsPlayed;
+    }
+
+    void BallsPlayedTracker(){
+        BallsPlayed ++;
+    }
+
+    public int getNumberOf6s(){
+        return numberOf6s;
+    }
+
+    void trackNoOf6s(){
+        numberOf6s++;
+    }
+
+    public int getNumberOf4s(){
+        return numberOf4s;
+    }
+
+    void trackNoOf4s(){
+        numberOf4s++;
+    }
+
+    public int getWicketsTaken(){
+        return wicketsTaken;
+    }
+
+    void wicketTracker(){
+        wicketsTaken++;
+    }
+
+    public int getNoBallsBowled(){
+        return noBallsBowled;
+    }
+
+    void NoBallsBowledTracker(){
+        noBallsBowled++;
+    }
+
+    public int getWideBallsBowled(){
+        return wideBallsBowled;
+    }
+
+    void WideBallsBowledTracker(){
+        wideBallsBowled++;
+    }
+
+    public double getBallsBowled(){
+        return ballsBowled;
+    }
+
+    void BallsBowledTracker(){
+        ballsBowled++;
+    }
+
+    public int getRunsGiven(){
+        return runsGiven;
+    }
+
+    void runsGivenTracker(int runs){
+        runsGiven += runs;
+    }
+
+    void setWicketTakenBy(String nameBowler){
+        wicketTakenBy = nameBowler;
+    }
+
+    public String getWicketTakenBy(){
+        return wicketTakenBy;
+    }
 
 }
