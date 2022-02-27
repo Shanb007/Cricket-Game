@@ -1,36 +1,20 @@
 package com.tekion.game.models;
 
-import java.util.Random;
+import com.tekion.game.service.UmpireService;
 
 public class Umpire {
-private final String[] umpires = {"Suresh Shastri", "Aleem Dar", "Billy Bowden"};
- private int u1, u2, u3;
+    private final String[] umpires = {"Suresh Shastri", "Aleem Dar", "Billy Bowden"};
 
-void SetFirstUmpire(){
-    Random N  = new Random();
-    u1 = N.nextInt(3);
-}
-
-String getFirstUmpire(){
-    return umpires[u1];
-}
-
-void SetSecondUmpire(){
-        Random N  = new Random();
-       do{ u2 = N.nextInt(3);}
-       while(u1 == u2);
+    String getFirstUmpire(){
+        return umpires[UmpireService.SetFirstUmpire()];
     }
 
     String getSecondUmpire(){
-        return umpires[u2];
-    }
-
-void SetThirdUmpire(){
-        u3 = 3-u1-u2;
+        return umpires[UmpireService.SetSecondUmpire()];
     }
 
     String getThirdUmpire(){
-        return umpires[u3];
+        return umpires[UmpireService.SetThirdUmpire()];
     }
 
 }
