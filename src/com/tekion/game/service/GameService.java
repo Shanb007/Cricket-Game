@@ -1,10 +1,11 @@
 package com.tekion.game.service;
 
 import com.tekion.game.models.Match;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class GameService {
-    public void PlayTheGame() {
+    public void PlayTheGame() throws SQLException, ClassNotFoundException {
         String wantMatch = "Y";
         while (wantMatch.equals("Y")) {
             int overs;

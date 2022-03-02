@@ -1,8 +1,12 @@
 package com.tekion.game.models;
 
+import com.tekion.game.DBUpdateHelper.PlayerDBHelper;
+import com.tekion.game.DBUpdateHelper.TeamDBHelper;
+import com.tekion.game.bean.Matches;
 import com.tekion.game.service.ScoreBoardService;
 import com.tekion.game.service.StrikeService;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -12,17 +16,22 @@ public class Inning {
     private int currentNotOnStrike = 1;
     private int currentBowler = 0;
     private final ArrayList<String> wicketFallTrack = new ArrayList<>();
+    TeamDBHelper teamDBHelper = new TeamDBHelper();
+    PlayerDBHelper playerDBHelper = new PlayerDBHelper();
 
-    public void InitiateInnings(Team bat, Team ball, int overs, String inning){
-        playInnings(bat,ball,overs,inning);
+    public Inning() throws SQLException, ClassNotFoundException {
     }
 
-    private void playInnings(Team BatTeam, Team BowlTeam, int overs, String inning) {
+    public void InitiateInnings(Matches match, Team bat, Team ball, int overs, String inning) throws SQLException {
+        playInnings(match,bat,ball,overs,inning);
+    }
+
+    private void playInnings(Matches match,Team BatTeam, Team BowlTeam, int overs, String inning) throws SQLException {
         Random randomOutcome = new Random();
         ArrayList<Player> playing11 = new ArrayList<>();
         ArrayList<Player> bowlers = new ArrayList<>();
 
-        setUpPlayers(playing11,bowlers);
+        setUpPlayers(BatTeam, BowlTeam, playing11,bowlers);
 
         System.out.println("\n"+(BatTeam.currentOver() + 1)+ " over begins: ");
         System.out.println("Batsman on Strike: "+ playing11.get(currentOnStrike).getName()+"\n"+"Batsman on Non-Striker end: "+playing11.get(currentNotOnStrike).getName());
@@ -46,15 +55,14 @@ public class Inning {
                     madeRuns(BatTeam,playing11,bowlers,playBall);
             }
             if (bowlers.get(currentBowler).getBallsBowled() % 6 == 0 && ball != overs * 6 && bowlers.get(currentBowler).getBallsBowled()!=0 && currentBall != 3 && currentBall != 2) {
-                //System.out.println(ball);
                 System.out.println("\nScoreBoard after "+ (BatTeam.currentOver() + 1) + " overs.");
                 ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
-                overChange(BatTeam,bowlers,overs);
+                overChange(BatTeam,BowlTeam,bowlers,overs);
                 System.out.println("\n"+(BatTeam.currentOver() + 1)+ " over begins: ");
                 System.out.println("Batsman on Strike: "+ playing11.get(currentOnStrike).getName()+"\n"+"Batsman on Non-Striker end: "+playing11.get(currentNotOnStrike).getName());
             }
             if (ball == overs*6){
-                System.out.println("ScoreBoard after "+ BatTeam.currentOver() + " overs.");
+                System.out.println("ScoreBoard after "+ (BatTeam.currentOver()+1) + " overs.");
                 ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
             }
             if (inning.equals("1st") && BatTeam.totalWicketsGone() == 10) {
@@ -64,23 +72,26 @@ public class Inning {
                 break;
             }
         }
-        ScoreBoardService.showScoreBoard(BatTeam, playing11, bowlers, inning, wicketFallTrack);
+        ScoreBoardService.showScoreBoard(match,BatTeam, BowlTeam, playing11, bowlers, inning, wicketFallTrack);
     }
 
-    private void setUpPlayers(ArrayList<Player> playing11, ArrayList<Player> bowlers){
+    private void setUpPlayers(Team BatTeam, Team BowlTeam, ArrayList<Player> playing11, ArrayList<Player> bowlers) throws SQLException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter the player name to bat (on strike): ");
         String batsman1 = sc.next();
         playing11.add(new Player(batsman1));
+        playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),batsman1);
         System.out.print("Enter the player name to bat second (Non-Striker end): ");
         String batsman2 = sc.next();
         playing11.add(new Player(batsman2));
+        playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),batsman2);
         System.out.print("1st over will be bowled by: ");
         String bowlerName = sc.next();
         bowlers.add(new Player(bowlerName));
+        playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlerName);
     }
 
-    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall){
+    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall) throws SQLException {
         bowlingTeam.get(currentBowler).BallsBowledTracker();
         System.out.println("\nWICKET !!!! and it's a wicket " + battingTeam.get(currentOnStrike).getName() + " has to make his way back to pavilion.");
         battingTeam.get(currentOnStrike).setWicketTakenBy(bowlingTeam.get(currentBowler).getName());
@@ -95,6 +106,7 @@ public class Inning {
         System.out.print("\nEnter the " + team.totalWicketsGone() + " wicket down player, to bat: ");
         String newOnField = sc.next();
         battingTeam.add(new Player(newOnField));
+        playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(team.getTeam()),newOnField);
         StrikeService.changeCurrentOnStrike((team.totalWicketsGone()+1));
         currentOnStrike = StrikeService.OnStrike();
         currentNotOnStrike = StrikeService.NotOnStrike();
@@ -150,20 +162,20 @@ public class Inning {
     }
 
 
-    private void overChange(Team team, ArrayList<Player> bowlingTeam, int overs){
+    private void overChange(Team BatTeam, Team BowlTeam, ArrayList<Player> bowlingTeam, int overs) throws SQLException {
         Scanner sc = new Scanner(System.in);
-        team.currentOverCalculator();
+        BatTeam.currentOverCalculator();
         StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
         currentOnStrike = StrikeService.OnStrike();
         currentNotOnStrike = StrikeService.NotOnStrike();
-        if ((team.currentOver()+1)==2) {
-            System.out.print("\n"+(team.currentOver() + 1) + "nd over will be bowled by: ");
+        if ((BatTeam.currentOver()+1)==2) {
+            System.out.print("\n"+(BatTeam.currentOver() + 1) + "nd over will be bowled by: ");
         }
-        else if ((team.currentOver()+1)==3) {
-            System.out.print("\n"+(team.currentOver() + 1) + "rd over will be bowled by: ");
+        else if ((BatTeam.currentOver()+1)==3) {
+            System.out.print("\n"+(BatTeam.currentOver() + 1) + "rd over will be bowled by: ");
         }
         else{
-            System.out.print("\n"+(team.currentOver() + 1) + "th over will be bowled by: ");
+            System.out.print("\n"+(BatTeam.currentOver() + 1) + "th over will be bowled by: ");
         }
         String newBowlerName = sc.next();
         // check if bowler already present
@@ -177,6 +189,7 @@ public class Inning {
         }
         if (flag == 0) {
             bowlingTeam.add(new Player(newBowlerName));
+            playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),newBowlerName);
             currentBowler = bowlingTeam.size() - 1;
         }
     }
