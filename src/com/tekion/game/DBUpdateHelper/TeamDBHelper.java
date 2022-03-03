@@ -33,11 +33,11 @@ public class TeamDBHelper {
     }
 
     public int getIdByTeamName(String teamName) throws SQLException {
-            PreparedStatement statement = conn.prepareStatement("SELECT teamId from Teams WHERE teamName = ? ");
-            statement.setString(1, teamName);
-            ResultSet rs = statement.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        }
+        PreparedStatement statement = conn.prepareStatement("SELECT teamId from Teams WHERE teamName = ? ");
+        statement.setString(1, teamName);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        return rs.getInt(1);
     }
+}
 

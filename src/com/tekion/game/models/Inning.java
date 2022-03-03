@@ -46,7 +46,7 @@ public class Inning {
                 case 0:
                     overStats.add("W");
                     ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1),"W",playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),playing11.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlers.get(currentBowler).getName()));
-                    gotWicket(BatTeam,playing11,bowlers,playBall,overStats);
+                    gotWicket(BatTeam,playing11,bowlers,playBall);
                     break;
                 case 2:
                     ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1),"NB",playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),playing11.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlers.get(currentBowler).getName()));
@@ -103,7 +103,7 @@ public class Inning {
         playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlerName);
     }
 
-    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall,ArrayList<String> overStats) throws SQLException {
+    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall) throws SQLException {
         bowlingTeam.get(currentBowler).BallsBowledTracker();
         System.out.println("\nWICKET !!!! and it's a wicket " + battingTeam.get(currentOnStrike).getName() + " has to make his way back to pavilion.");
         battingTeam.get(currentOnStrike).setWicketTakenBy(bowlingTeam.get(currentBowler).getName());

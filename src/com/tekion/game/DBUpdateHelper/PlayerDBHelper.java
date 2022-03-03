@@ -39,13 +39,13 @@ public class PlayerDBHelper {
     }
 
     public int getPlayerIdByTeamIdAndPlayerName(int teamID , String playerName) throws SQLException {
-            PreparedStatement statement = conn.prepareStatement("SELECT playerId FROM Players WHERE teamId = ? AND playerName = ? ");
-            statement.setInt(1 , teamID);
-            statement.setString(2 , playerName);
-            ResultSet rs = statement.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        }
+        PreparedStatement statement = conn.prepareStatement("SELECT playerId FROM Players WHERE teamId = ? AND playerName = ? ");
+        statement.setInt(1 , teamID);
+        statement.setString(2 , playerName);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        return rs.getInt(1);
+    }
 
     public void setDataPlayerMatchDetailsDB(int playerID, int matchID, Player player) throws SQLException {
         String sqlQuery = "INSERT INTO PlayersMatchDetails (playerID,matchID,runsScored,ballsPlayed,numberOf4s,numberOf6s,wicketTakenBy,oversBowled,wicketsTaken,noBallsBowled,wideBallsBowled,runsGiven) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
