@@ -26,7 +26,7 @@ public class Match {
     }
 
     public void matchDeclaration() throws SQLException {
-        String[] teamName = {"India", "Australia", "New Zealand", "South Africa", "West Indies", "Pakistan", "Sri Lanka"};
+        String[] teamName = {"India", "Australia", "New Zealand", "South Africa", "West Indies", "Pakistan", "Sri Lanka", "England","Bangladesh", "Zimbabwe"};
         //add check and then proceed.
         Random randomPick = new Random();
         int team1 = randomPick.nextInt(teamName.length);

@@ -1,5 +1,6 @@
 package com.tekion.game.models;
 
+import com.tekion.game.DBUpdateHelper.BallDBHelper;
 import com.tekion.game.DBUpdateHelper.PlayerDBHelper;
 import com.tekion.game.DBUpdateHelper.TeamDBHelper;
 import com.tekion.game.bean.Matches;
@@ -18,6 +19,7 @@ public class Inning {
     private final ArrayList<String> wicketFallTrack = new ArrayList<>();
     TeamDBHelper teamDBHelper = new TeamDBHelper();
     PlayerDBHelper playerDBHelper = new PlayerDBHelper();
+    BallDBHelper ballDBHelper = new BallDBHelper();
 
     public Inning() throws SQLException, ClassNotFoundException {
     }
@@ -30,6 +32,7 @@ public class Inning {
         Random randomOutcome = new Random();
         ArrayList<Player> playing11 = new ArrayList<>();
         ArrayList<Player> bowlers = new ArrayList<>();
+        ArrayList<String> overStats = new ArrayList<>();
 
         setUpPlayers(BatTeam, BowlTeam, playing11,bowlers);
 
@@ -41,34 +44,43 @@ public class Inning {
             int currentBall = randomOutcome.nextInt(10);
             switch (currentBall) {
                 case 0:
-                    gotWicket(BatTeam,playing11,bowlers,playBall);
+                    overStats.add("W");
+                    ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1),"W",playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),playing11.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlers.get(currentBowler).getName()));
+                    gotWicket(BatTeam,playing11,bowlers,playBall,overStats);
                     break;
                 case 2:
-                    NoBall(BatTeam,bowlers,playBall);
+                    ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1),"NB",playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),playing11.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlers.get(currentBowler).getName()));
+                    NoBall(BatTeam,bowlers,playBall, overStats);
                     ball--;
                     break;
                 case 3:
-                    WideBall(BatTeam,bowlers,playBall);
+                    ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1),"WB",playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),playing11.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlers.get(currentBowler).getName()));
+                    WideBall(BatTeam,bowlers,playBall,overStats);
                     ball--;
                     break;
                 default:
-                    madeRuns(BatTeam,playing11,bowlers,playBall);
+                    madeRuns(match,ball,BatTeam,BowlTeam,playing11,bowlers,playBall,overStats);
             }
             if (bowlers.get(currentBowler).getBallsBowled() % 6 == 0 && ball != overs * 6 && bowlers.get(currentBowler).getBallsBowled()!=0 && currentBall != 3 && currentBall != 2) {
+                getCurrentOverDetails(overStats);
                 System.out.println("\nScoreBoard after "+ (BatTeam.currentOver() + 1) + " overs.");
                 ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
                 overChange(BatTeam,BowlTeam,bowlers,overs);
+                overStats = new ArrayList<>();
                 System.out.println("\n"+(BatTeam.currentOver() + 1)+ " over begins: ");
                 System.out.println("Batsman on Strike: "+ playing11.get(currentOnStrike).getName()+"\n"+"Batsman on Non-Striker end: "+playing11.get(currentNotOnStrike).getName());
             }
             if (ball == overs*6){
-                System.out.println("ScoreBoard after "+ (BatTeam.currentOver()+1) + " overs.");
+                getCurrentOverDetails(overStats);
+                System.out.println("\nScoreBoard after "+ (BatTeam.currentOver()+1) + " overs.");
                 ScoreBoardService.showScoreBoardAfterWicketOROver(playing11,bowlers);
             }
             if (inning.equals("1st") && BatTeam.totalWicketsGone() == 10) {
+                getCurrentOverDetails(overStats);
                 break;
             }
             if (inning.equals("2nd") && (BatTeam.totalWicketsGone() == 10 || BatTeam.TeamScore() > BowlTeam.TeamScore())){
+                getCurrentOverDetails(overStats);
                 break;
             }
         }
@@ -91,7 +103,7 @@ public class Inning {
         playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlerName);
     }
 
-    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall) throws SQLException {
+    private void gotWicket(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall,ArrayList<String> overStats) throws SQLException {
         bowlingTeam.get(currentBowler).BallsBowledTracker();
         System.out.println("\nWICKET !!!! and it's a wicket " + battingTeam.get(currentOnStrike).getName() + " has to make his way back to pavilion.");
         battingTeam.get(currentOnStrike).setWicketTakenBy(bowlingTeam.get(currentBowler).getName());
@@ -113,10 +125,11 @@ public class Inning {
     }
 
 
-    private void madeRuns(Team team, ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall){
+    private void madeRuns(Matches match, int ball,Team BatTeam,Team BowlTeam ,ArrayList<Player> battingTeam,ArrayList<Player> bowlingTeam,Ball playBall,ArrayList<String> overStats) throws SQLException {
         bowlingTeam.get(currentBowler).BallsBowledTracker();
         battingTeam.get(currentOnStrike).BallsPlayedTracker();
         int score = playBall.runs();
+        ballDBHelper.setBallDetailsDB(match,teamDBHelper.getIdByTeamName(BatTeam.getTeam()),ball,(BatTeam.currentOver()+1), String.valueOf(score),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BatTeam.getTeam()),battingTeam.get(currentOnStrike).getName()),playerDBHelper.getPlayerIdByTeamIdAndPlayerName(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),bowlingTeam.get(currentBowler).getName()));
         if (score % 2 == 0) {
             battingTeam.get(currentOnStrike).runTracker(score);
             if (score == 4) {
@@ -132,30 +145,37 @@ public class Inning {
         currentOnStrike = StrikeService.OnStrike();
         currentNotOnStrike = StrikeService.NotOnStrike();
         bowlingTeam.get(currentBowler).runsGivenTracker(score);
-        team.TeamScoreCalculator(score);
+        BatTeam.TeamScoreCalculator(score);
+        overStats.add(String.valueOf(score));
     }
 
 
-    private void WideBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall){
+    private void WideBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall, ArrayList<String> overStats){
         int wideB = playBall.wideBall();
         bowlingTeam.get(currentBowler).WideBallsBowledTracker();
         bowlingTeam.get(currentBowler).runsGivenTracker(wideB);
         team.TeamScoreCalculator(wideB);
         team.ExtraScoreTracker(wideB);
         team.WideBallTracker();
+        if(wideB>1){
+            overStats.add("WB+"+(wideB-1));
+        }
         if (wideB % 2 == 0) {
             StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
         }
     }
 
 
-    private void NoBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall){
+    private void NoBall(Team team, ArrayList<Player> bowlingTeam,Ball playBall,ArrayList<String> overStats){
         int noBall = playBall.NoBall();
         bowlingTeam.get(currentBowler).NoBallsBowledTracker();
         bowlingTeam.get(currentBowler).runsGivenTracker(noBall);
         team.TeamScoreCalculator(noBall);
         team.ExtraScoreTracker(noBall);
         team.NoBallTracker();
+        if(noBall>1){
+            overStats.add("NB+"+(noBall-1));
+        }
         if (noBall % 2 == 0) {
             StrikeService.changeStrike(currentOnStrike, currentNotOnStrike);
         }
@@ -191,6 +211,13 @@ public class Inning {
             bowlingTeam.add(new Player(newBowlerName));
             playerDBHelper.setDataPlayerDB(teamDBHelper.getIdByTeamName(BowlTeam.getTeam()),newBowlerName);
             currentBowler = bowlingTeam.size() - 1;
+        }
+    }
+
+    private void getCurrentOverDetails(ArrayList<String> overStats){
+        System.out.print("\nThis Over: \t");
+        for (String overStat : overStats) {
+            System.out.print(overStat+"\t\t");
         }
     }
 
