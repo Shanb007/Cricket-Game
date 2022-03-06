@@ -1,17 +1,33 @@
 package com.tekion.game.models;
 
+import com.tekion.game.DBUpdateHelper.MatchDBHelper;
+import com.tekion.game.DBUpdateHelper.ScoreBoardDBHelper;
+import com.tekion.game.DBUpdateHelper.TeamDBHelper;
+import com.tekion.game.bean.Matches;
+import com.tekion.game.bean.Teams;
 import com.tekion.game.service.InningsService;
 import com.tekion.game.service.TossService;
 
-import java.util.*;
+import java.sql.SQLException;
+import java.util.Random;
 
 public class Match {
     // two teams to be declared for a match
     private final Team FirstInningsTeam  = new Team();
     private final Team SecondInningsTeam = new Team();
+    TeamDBHelper teamDBHelper = new TeamDBHelper();
+    MatchDBHelper matchDBHelper = new MatchDBHelper();
+    ScoreBoardDBHelper scoreBoardDBHelper = new ScoreBoardDBHelper();
+    Matches matches = new Matches();
+    Teams teamA = new Teams();
+    Teams teamB = new Teams();
 
-    public void matchDeclaration() {
-        String[] teamName = {"India", "Australia", "New Zealand", "South Africa", "West Indies", "Pakistan", "Sri Lanka"};
+    public Match() throws SQLException, ClassNotFoundException {
+    }
+
+    public void matchDeclaration() throws SQLException {
+        String[] teamName = {"India", "Australia", "New Zealand", "South Africa", "West Indies", "Pakistan", "Sri Lanka", "England","Bangladesh", "Zimbabwe"};
+        //add check and then proceed.
         Random randomPick = new Random();
         int team1 = randomPick.nextInt(teamName.length);
         int team2 = randomPick.nextInt(teamName.length);
@@ -33,30 +49,70 @@ public class Match {
         if (choiceMade==1){
             FirstInningsTeam.setTeamName(teamName[won]);
             SecondInningsTeam.setTeamName(teamName[lost]);
+            setTeamBeans(won,lost,teamName);
             System.out.println(FirstInningsTeam.getTeam() + " won the toss, and chose to Bat first.");
+            setMatchBeanMatchDetails(teamA.getTeamID(),teamB.getTeamID(),teamName[won],"Bat");
         }
         else{
             FirstInningsTeam.setTeamName(teamName[lost]);
             SecondInningsTeam.setTeamName(teamName[won]);
+            setTeamBeans(lost,won,teamName);
             System.out.println(SecondInningsTeam.getTeam()+" won the toss, and chose to ball first.");
+            setMatchBeanMatchDetails(teamA.getTeamID(),teamB.getTeamID(),teamName[won],"Ball");
         }
     }
 
-    public void startTheMatch(int overs) {
-        InningsService.InningsStart(FirstInningsTeam,SecondInningsTeam,overs);
+//teamA is always firstinnings team.
+
+    public void startTheMatch(int overs) throws SQLException, ClassNotFoundException {
+        matches.setTotalOvers(overs);
+        matchDBHelper.setMatchDBMatchDetails(matches);
+        matches.setMatchID(matchDBHelper.getMatchIDbyTeamsID(teamA.getTeamID(),teamB.getTeamID()));
+        InningsService.InningsStart(matches,FirstInningsTeam,SecondInningsTeam,overs);
         ShowResults();
     }
 
-    private void ShowResults(){
+    private void ShowResults() throws SQLException {
         System.out.println();
         if (FirstInningsTeam.TeamScore() == SecondInningsTeam.TeamScore()){
             System.out.println("Match Tied.\n\n");
+            setMatchBeanResult("Tied",FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
         }
         if (FirstInningsTeam.TeamScore() > SecondInningsTeam.TeamScore()){
             System.out.println(FirstInningsTeam.getTeam() + " won by " + (FirstInningsTeam.TeamScore()-SecondInningsTeam.TeamScore()) + " runs.\n\n");
+            setMatchBeanResult(FirstInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
         }
         if (FirstInningsTeam.TeamScore() < SecondInningsTeam.TeamScore()){
             System.out.println(SecondInningsTeam.getTeam() + " won by " + (10-SecondInningsTeam.totalWicketsGone() + " wickets.\n\n"));
+            setMatchBeanResult(SecondInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
         }
+        matchDBHelper.setDBMatchResults(matches);
+        scoreBoardDBHelper.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
+        // System.out.println(matches.getMatchID());
+    }
+
+    private void setMatchBeanMatchDetails(int TeamA_ID,int TeamB_ID, String tossWinner, String tossWinnerChoice){
+        //matches.setMatchID(MatchID);
+        matches.setTeamA_ID(TeamA_ID);
+        matches.setTeamB_ID(TeamB_ID);
+        matches.setTossWinner(tossWinner);
+        matches.setTossWinnerChoice(tossWinnerChoice);
+    }
+
+    private void setMatchBeanResult(String MatchWinner,int TeamAScore, int TeamAWicketsFallen,int TeamBScore, int TeamBWicketsFallen){
+        matches.setMatch_Winner(MatchWinner);
+        matches.setTeamA_Score(TeamAScore);
+        matches.setTeamB_Score(TeamBScore);
+        matches.setTeamA_WicketsFallen(TeamAWicketsFallen);
+        matches.setTeamB_WicketsFallen(TeamBWicketsFallen);
+    }
+
+    private void setTeamBeans(int team1, int team2, String[] teamName) throws SQLException {
+        teamDBHelper.setDataTeamDB(teamName[team1]);
+        teamA.setTeamName(teamName[team1]);
+        teamA.setTeamID(teamDBHelper.getIdByTeamName(teamA.getTeamName()));
+        teamDBHelper.setDataTeamDB(teamName[team2]);
+        teamB.setTeamName(teamName[team2]);
+        teamB.setTeamID(teamDBHelper.getIdByTeamName(teamB.getTeamName()));
     }
 }

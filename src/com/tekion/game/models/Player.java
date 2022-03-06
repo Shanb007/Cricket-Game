@@ -24,7 +24,7 @@ public class Player {
         this.noBallsBowled = 0;
         this.wideBallsBowled= 0;
         this.runsGiven = 0;
-        this.wicketTakenBy = "NOT OUT";
+        this.wicketTakenBy = "-";
     }
 
     public String getName(){
