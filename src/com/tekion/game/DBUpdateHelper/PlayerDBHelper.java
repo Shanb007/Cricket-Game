@@ -64,4 +64,14 @@ public class PlayerDBHelper {
         statement.setInt(12,player.getRunsGiven());
         statement.execute();
     }
+
+    public String getPlayerDetails(int playerID,int matchID) throws SQLException {
+        String sqlQuery = "SELECT * FROM PlayersMatchDetails WHERE playerID = ? AND matchID = ? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,playerID);
+        statement.setInt(2,matchID);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        return "Runs Scored: "+rs.getInt("runsScored")+"\n"+"Balls Played: "+rs.getInt("ballsPlayed")+"\n"+"Wicket Taken By: "+rs.getString("wicketTakenBy")+"\n"+"Overs Bowled: "+rs.getDouble("oversBowled")+"\n"+"Wicket Taken: "+rs.getInt("wicketsTaken")+"\n"+"Runs Given: "+rs.getInt("runsGiven")+"\n";
+    }
 }
