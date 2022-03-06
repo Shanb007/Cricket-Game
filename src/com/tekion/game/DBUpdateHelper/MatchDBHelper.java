@@ -4,6 +4,7 @@ import com.tekion.game.bean.Matches;
 import com.tekion.game.dbconnector.MySQLConnector;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class MatchDBHelper {
     Connection conn = MySQLConnector.getConnection();
@@ -40,6 +41,21 @@ public class MatchDBHelper {
         rs.next();
         return rs.getInt(1);
     }
-}
 
-// create different mat details... result set different and details different.
+    public ArrayList<String> getMatchDetail(int matchID) throws SQLException {
+        ArrayList<String> matchDetail = new ArrayList<>();
+        String sqlQuery = "select Matches.MatchID, Matches.TeamA_ID, Matches.TeamB_ID, Matches.TotalOvers, MatchResults.tossWinner, MatchResults.tossWinnerChoice, MatchResults.Match_Winner from Matches INNER JOIN MatchResults ON Matches.MatchID = MatchResults.MatchID WHERE Matches.MatchID = ? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        matchDetail.add("Match Id: "+rs.getInt("Matches.MatchID"));
+        matchDetail.add("Team A Id: "+rs.getInt("Matches.TeamA_ID"));
+        matchDetail.add("Team B Id: "+rs.getInt("Matches.TeamB_ID"));
+        matchDetail.add("Total Overs: "+rs.getInt("Matches.TotalOvers"));
+        matchDetail.add("Toss Winner: "+rs.getString("MatchResults.tossWinner"));
+        matchDetail.add("Toss Winner Choice: "+rs.getString("MatchResults.tossWinnerChoice"));
+        matchDetail.add("Match Winner: "+rs.getString("MatchResults.Match_Winner"));
+        return matchDetail;
+    }
+}
