@@ -12,9 +12,11 @@ public class Player {
     private int wideBallsBowled;
     private int runsGiven;
     private String wicketTakenBy;
+    private String didBat;
+    private String didBall;
 
-    public Player(String name){
-        this.PlayerName = name;
+    public Player(String PlayerName){
+        this.PlayerName = PlayerName;
         this.runsScored = 0;
         this.BallsPlayed = 0;
         this.numberOf4s = 0;
@@ -25,6 +27,8 @@ public class Player {
         this.wideBallsBowled= 0;
         this.runsGiven = 0;
         this.wicketTakenBy = "-";
+        this.didBall= "N";
+        this.didBat = "N";
     }
 
     public String getName(){
@@ -35,7 +39,7 @@ public class Player {
         return runsScored;
     }
 
-    void runTracker(int score){
+    public void runTracker(int score){
         runsScored += score;
     }
 
@@ -43,7 +47,7 @@ public class Player {
         return BallsPlayed;
     }
 
-    void BallsPlayedTracker(){
+    public void BallsPlayedTracker(){
         BallsPlayed ++;
     }
 
@@ -51,7 +55,7 @@ public class Player {
         return numberOf6s;
     }
 
-    void trackNoOf6s(){
+    public void trackNoOf6s(){
         numberOf6s++;
     }
 
@@ -59,7 +63,7 @@ public class Player {
         return numberOf4s;
     }
 
-    void trackNoOf4s(){
+    public void trackNoOf4s(){
         numberOf4s++;
     }
 
@@ -67,7 +71,7 @@ public class Player {
         return wicketsTaken;
     }
 
-    void wicketTracker(){
+    public void wicketTracker(){
         wicketsTaken++;
     }
 
@@ -75,7 +79,7 @@ public class Player {
         return noBallsBowled;
     }
 
-    void NoBallsBowledTracker(){
+    public void NoBallsBowledTracker(){
         noBallsBowled++;
     }
 
@@ -83,7 +87,7 @@ public class Player {
         return wideBallsBowled;
     }
 
-    void WideBallsBowledTracker(){
+    public void WideBallsBowledTracker(){
         wideBallsBowled++;
     }
 
@@ -91,7 +95,7 @@ public class Player {
         return ballsBowled;
     }
 
-    void BallsBowledTracker(){
+    public void BallsBowledTracker(){
         ballsBowled++;
     }
 
@@ -99,11 +103,11 @@ public class Player {
         return runsGiven;
     }
 
-    void runsGivenTracker(int runs){
+    public void runsGivenTracker(int runs){
         runsGiven += runs;
     }
 
-    void setWicketTakenBy(String nameBowler){
+    public void setWicketTakenBy(String nameBowler){
         wicketTakenBy = nameBowler;
     }
 
@@ -111,4 +115,19 @@ public class Player {
         return wicketTakenBy;
     }
 
+    public String getDidBall() {
+        return didBall;
+    }
+
+    public String getDidBat() {
+        return didBat;
+    }
+
+    public void setDidBall(String didBall) {
+        this.didBall = didBall;
+    }
+
+    public void setDidBat(String didBat) {
+        this.didBat = didBat;
+    }
 }

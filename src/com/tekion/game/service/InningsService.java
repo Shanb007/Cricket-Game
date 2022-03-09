@@ -1,19 +1,17 @@
 package com.tekion.game.service;
 
 import com.tekion.game.bean.Matches;
-import com.tekion.game.models.Inning;
+import com.tekion.game.models.Player;
 import com.tekion.game.models.Team;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-public class InningsService {
-
-    public static void InningsStart(Matches match,Team team1, Team team2, int overs) throws SQLException, ClassNotFoundException {
-        Inning FirstInning = new Inning();
-        System.out.println("\n1st Innings:");
-        FirstInning.InitiateInnings(match,team1,team2,overs,"1st");
-        Inning SecondInning = new Inning();
-        System.out.println("2nd Innings:");
-        SecondInning.InitiateInnings(match,team2,team1,overs,"2nd");
-    }
+@Service
+public interface InningsService {
+    ArrayList<String> InitiateInnings(Matches match, Team bat, Team ball, int overs, String inning);
+    String addBatPlayer(int matchID, int teamID, String player) throws SQLException;
+    String overBy(int matchID, int teamID, String player) throws SQLException;
+    String playOver(int matchID) throws SQLException;
 }

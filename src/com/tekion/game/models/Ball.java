@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Ball {
 
-    int runs(){
+    public int runs(){
         Random randomOutcome = new Random();
         int run = randomOutcome.nextInt(7);
         while(run == 5){
@@ -14,7 +14,7 @@ public class Ball {
         return run;
     }
 
-    int NoBall(){
+    public int NoBall(){
         Random randomOutcome = new Random();
         if(randomOutcome.nextInt(2)==1){
             //1 score for NoBall Plus if extra are scored on NoBall (0,1,2,3,4) {5 ain't possible}
@@ -24,12 +24,12 @@ public class Ball {
         return 7;
     }
 
-    int wideBall(){
+    public int wideBall(){
         Random randomOutcome = new Random();
         return (1 + randomOutcome.nextInt(5));
     }
 
-    int wicket(){
+    public int wicket(){
         return 0;
     }
 

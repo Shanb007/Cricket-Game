@@ -1,14 +1,17 @@
-package com.tekion.game.DBUpdateHelper;
+package com.tekion.game.Repository;
 
 import com.tekion.game.bean.Matches;
 import com.tekion.game.dbconnector.MySQLConnector;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 
-public class ScoreBoardDBHelper {
+
+@Repository
+public class ScoreBoardRepository {
     Connection conn = MySQLConnector.getConnection();
 
-    public ScoreBoardDBHelper() throws SQLException, ClassNotFoundException {
+    public ScoreBoardRepository() throws SQLException, ClassNotFoundException {
     }
 
     public void setScoreBoardDBDetails(Matches match, String FirstInningTeam, String SecondInningTeam) throws SQLException {
