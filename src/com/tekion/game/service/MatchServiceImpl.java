@@ -1,31 +1,36 @@
-package com.tekion.game.models;
+package com.tekion.game.service;
 
-import com.tekion.game.DBUpdateHelper.MatchDBHelper;
-import com.tekion.game.DBUpdateHelper.ScoreBoardDBHelper;
-import com.tekion.game.DBUpdateHelper.TeamDBHelper;
+import com.tekion.game.Repository.MatchRepository;
+import com.tekion.game.Repository.ScoreBoardRepository;
+import com.tekion.game.Repository.TeamRepository;
 import com.tekion.game.bean.Matches;
 import com.tekion.game.bean.Teams;
-import com.tekion.game.service.InningsService;
-import com.tekion.game.service.TossService;
+import com.tekion.game.models.Team;
+import com.tekion.game.models.Umpire;
+import com.tekion.game.util.MatchUtils;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Random;
 
-public class Match {
+@Service
+public class MatchServiceImpl implements MatchService {
     // two teams to be declared for a match
     private final Team FirstInningsTeam  = new Team();
     private final Team SecondInningsTeam = new Team();
-    TeamDBHelper teamDBHelper = new TeamDBHelper();
-    MatchDBHelper matchDBHelper = new MatchDBHelper();
-    ScoreBoardDBHelper scoreBoardDBHelper = new ScoreBoardDBHelper();
+    TeamRepository teamRepository = new TeamRepository();
+    MatchRepository matchRepository = new MatchRepository();
+    ScoreBoardRepository scoreBoardRepository = new ScoreBoardRepository();
     Matches matches = new Matches();
     Teams teamA = new Teams();
     Teams teamB = new Teams();
 
-    public Match() throws SQLException, ClassNotFoundException {
+    public MatchServiceImpl() throws SQLException, ClassNotFoundException {
     }
 
-    public void matchDeclaration() throws SQLException {
+
+    public String matchDeclaration(int overs) throws SQLException {
         String[] teamName = {"India", "Australia", "New Zealand", "South Africa", "West Indies", "Pakistan", "Sri Lanka", "England","Bangladesh", "Zimbabwe"};
         //add check and then proceed.
         Random randomPick = new Random();
@@ -43,8 +48,8 @@ public class Match {
         System.out.println("The Third Umpire for the match is: "+ umpire.getThirdUmpire()+".");
         System.out.println("------------------------------------------------------------------------");
         System.out.println("\nBoth the Captains are on the field for the Toss.");
-        int won = TossService.tossWinner(team1, team2);
-        int lost = TossService.tossLoser();
+        int won = MatchUtils.tossWinner(team1, team2);
+        int lost = MatchUtils.tossLoser();
         int choiceMade = randomPick.nextInt(2);
         if (choiceMade==1){
             FirstInningsTeam.setTeamName(teamName[won]);
@@ -60,19 +65,25 @@ public class Match {
             System.out.println(SecondInningsTeam.getTeam()+" won the toss, and chose to ball first.");
             setMatchBeanMatchDetails(teamA.getTeamID(),teamB.getTeamID(),teamName[won],"Ball");
         }
-    }
-
-//teamA is always firstinnings team.
-
-    public void startTheMatch(int overs) throws SQLException, ClassNotFoundException {
         matches.setTotalOvers(overs);
-        matchDBHelper.setMatchDBMatchDetails(matches);
-        matches.setMatchID(matchDBHelper.getMatchIDbyTeamsID(teamA.getTeamID(),teamB.getTeamID()));
-        InningsService.InningsStart(matches,FirstInningsTeam,SecondInningsTeam,overs);
-        ShowResults();
+        matchRepository.setMatchDBMatchDetails(matches);
+        matches.setMatchID(matchRepository.getMatchIDbyTeamsIDAndStatus(teamA.getTeamID(),teamB.getTeamID(),"ongoing"));
+    return "Match Created, Match id: "+matches.getMatchID()+" Team to bat first: "+teamA.getTeamName()+" First Inning Team ID: "+teamA.getTeamID()+" Team to bat second: "+teamB.getTeamName()+" Second Inning Team ID: "+teamB.getTeamID();
     }
 
-    private void ShowResults() throws SQLException {
+//teamA is always firstInnings team.
+
+    public ArrayList<String> startFirstInnings(int overs) throws SQLException, ClassNotFoundException {
+        InningServiceImpl FirstInningService = new InningServiceImpl();
+       return  FirstInningService.InitiateInnings(matches,FirstInningsTeam,SecondInningsTeam,overs,"1st");
+    }
+
+    public ArrayList<String> startSecondInnings(int overs) throws SQLException, ClassNotFoundException {
+        InningServiceImpl SecondInningService = new InningServiceImpl();
+        return SecondInningService.InitiateInnings(matches,SecondInningsTeam,FirstInningsTeam,overs,"2nd");
+    }
+
+    public void ShowResults() throws SQLException {
         System.out.println();
         if (FirstInningsTeam.TeamScore() == SecondInningsTeam.TeamScore()){
             System.out.println("Match Tied.\n\n");
@@ -86,8 +97,8 @@ public class Match {
             System.out.println(SecondInningsTeam.getTeam() + " won by " + (10-SecondInningsTeam.totalWicketsGone() + " wickets.\n\n"));
             setMatchBeanResult(SecondInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
         }
-        matchDBHelper.setDBMatchResults(matches);
-        scoreBoardDBHelper.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
+        matchRepository.setDBMatchResults(matches);
+        scoreBoardRepository.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
         // System.out.println(matches.getMatchID());
     }
 
@@ -108,11 +119,13 @@ public class Match {
     }
 
     private void setTeamBeans(int team1, int team2, String[] teamName) throws SQLException {
-        teamDBHelper.setDataTeamDB(teamName[team1]);
+        teamRepository.setDataTeamDB(teamName[team1]);
         teamA.setTeamName(teamName[team1]);
-        teamA.setTeamID(teamDBHelper.getIdByTeamName(teamA.getTeamName()));
-        teamDBHelper.setDataTeamDB(teamName[team2]);
+        teamA.setTeamID(teamRepository.getIdByTeamName(teamA.getTeamName()));
+        FirstInningsTeam.setTeamID(teamA.getTeamID());
+        teamRepository.setDataTeamDB(teamName[team2]);
         teamB.setTeamName(teamName[team2]);
-        teamB.setTeamID(teamDBHelper.getIdByTeamName(teamB.getTeamName()));
+        teamB.setTeamID(teamRepository.getIdByTeamName(teamB.getTeamName()));
+        SecondInningsTeam.setTeamID(teamB.getTeamID());
     }
 }

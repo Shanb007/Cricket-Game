@@ -1,20 +1,21 @@
 package com.tekion.game.models;
 
-import com.tekion.game.service.UmpireService;
+import com.tekion.game.service.UmpireServiceImpl;
 
 public class Umpire {
     private final String[] umpires = {"Suresh Shastri", "Aleem Dar", "Billy Bowden"};
+    private final UmpireServiceImpl umpireService = new UmpireServiceImpl();
 
-    String getFirstUmpire(){
-        return umpires[UmpireService.SetFirstUmpire()];
+    public String getFirstUmpire(){
+        return umpires[umpireService.SetFirstUmpire()];
     }
 
-    String getSecondUmpire(){
-        return umpires[UmpireService.SetSecondUmpire()];
+    public String getSecondUmpire(){
+        return umpires[umpireService.SetSecondUmpire()];
     }
 
-    String getThirdUmpire(){
-        return umpires[UmpireService.SetThirdUmpire()];
+    public String getThirdUmpire(){
+        return umpires[umpireService.SetThirdUmpire()];
     }
 
 }

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="java">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/SpringBoot.zip!/SpringBoot/src/main/java" />
+      <root url="jar://$USER_HOME$/Downloads/SpringBoot.zip!/SpringBoot/src/test/java" />
+    </SOURCES>
+  </library>
+</component>
