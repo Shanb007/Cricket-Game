@@ -2,6 +2,7 @@ package com.tekion.game.Repository;
 
 import com.tekion.game.bean.Matches;
 import com.tekion.game.dbconnector.MySQLConnector;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -15,6 +16,20 @@ public class MatchRepository {
 
     public MatchRepository() throws SQLException, ClassNotFoundException {
         conn = MySQLConnector.getConnection();
+    }
+
+    public boolean checkIfMatchExistsOngoing(int teamA_ID, int teamB_ID){
+        try {
+            PreparedStatement statement = conn.prepareStatement("SELECT MatchID FROM Matches WHERE TeamA_ID = ? AND TeamB_ID = ? AND matchStatus = ? ");
+            statement.setInt(1 , teamA_ID);
+            statement.setInt(2,teamB_ID);
+            statement.setString(3,"ongoing");
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void setMatchDBMatchDetails(Matches match) throws SQLException {
@@ -55,7 +70,7 @@ public class MatchRepository {
 
     public ArrayList<String> getMatchDetail(int matchID) throws SQLException {
         ArrayList<String> matchDetail = new ArrayList<>();
-        String sqlQuery = "select Matches.MatchID, Matches.TeamA_ID, Matches.TeamB_ID, Matches.TotalOvers, MatchResults.tossWinner, MatchResults.tossWinnerChoice, MatchResults.Match_Winner from Matches INNER JOIN MatchResults ON Matches.MatchID = MatchResults.MatchID WHERE Matches.MatchID = ? ";
+        String sqlQuery = "select Matches.MatchID, Matches.TeamA_ID, Matches.TeamB_ID, Matches.TotalOvers, Matches.tossWinner, Matches.tossWinnerChoice, MatchResults.Match_Winner from Matches INNER JOIN MatchResults ON Matches.MatchID = MatchResults.MatchID WHERE Matches.MatchID = ? ";
         PreparedStatement statement = conn.prepareStatement(sqlQuery);
         statement.setInt(1,matchID);
         ResultSet rs = statement.executeQuery();
@@ -64,8 +79,8 @@ public class MatchRepository {
         matchDetail.add("Team A Id: "+rs.getInt("Matches.TeamA_ID"));
         matchDetail.add("Team B Id: "+rs.getInt("Matches.TeamB_ID"));
         matchDetail.add("Total Overs: "+rs.getInt("Matches.TotalOvers"));
-        matchDetail.add("Toss Winner: "+rs.getString("MatchResults.tossWinner"));
-        matchDetail.add("Toss Winner Choice: "+rs.getString("MatchResults.tossWinnerChoice"));
+        matchDetail.add("Toss Winner: "+rs.getString("Matches.tossWinner"));
+        matchDetail.add("Toss Winner Choice: "+rs.getString("Matches.tossWinnerChoice"));
         matchDetail.add("Match Winner: "+rs.getString("MatchResults.Match_Winner"));
         return matchDetail;
     }
@@ -81,6 +96,9 @@ public class MatchRepository {
             eachMatch.add("Team A Id: "+rs.getInt("TeamA_ID"));
             eachMatch.add("Team B Id: "+rs.getInt("TeamB_ID"));
             eachMatch.add("Total Overs: "+rs.getDouble("TotalOvers"));
+            eachMatch.add("Toss Winner: "+rs.getString("tossWinner"));
+            eachMatch.add("Toss Winner Choice: "+rs.getString("tossWinnerChoice"));
+            eachMatch.add("Status: "+rs.getString("matchStatus"));
             matches.add(eachMatch);
         }
         return matches;
@@ -97,8 +115,8 @@ public class MatchRepository {
             eachMatch.add("Team A Id: "+rs.getInt("Matches.TeamA_ID"));
             eachMatch.add("Team B Id: "+rs.getInt("Matches.TeamB_ID"));
             eachMatch.add("Total Overs: "+rs.getInt("Matches.TotalOvers"));
-            eachMatch.add("Toss Winner: "+rs.getString("MatchResults.tossWinner"));
-            eachMatch.add("Toss Winner Choice: "+rs.getString("MatchResults.tossWinnerChoice"));
+            eachMatch.add("Toss Winner: "+rs.getString("Matches.tossWinner"));
+            eachMatch.add("Toss Winner Choice: "+rs.getString("Matches.tossWinnerChoice"));
             eachMatch.add("Match Winner: "+rs.getString("MatchResults.Match_Winner"));
             matches.add(eachMatch);
         }
@@ -164,4 +182,5 @@ public class MatchRepository {
         rs.next();
         return rs.getDouble("TotalOvers");
     }
+
 }
