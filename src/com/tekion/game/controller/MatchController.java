@@ -1,7 +1,6 @@
 package com.tekion.game.controller;
 
 import com.tekion.game.Repository.MatchRepository;
-import com.tekion.game.models.Player;
 import com.tekion.game.service.InningServiceImpl;
 import com.tekion.game.service.MatchServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +26,19 @@ public class MatchController {
     //match created with number of overs.
     @RequestMapping("/create/{overs}")
     public String startGame(@PathVariable int overs) throws SQLException{
-    return matchService.matchDeclaration(overs);
+        return matchService.matchDeclaration(overs);
     }
 
     //play first innings
-    @RequestMapping("/startFirstInnings/{matchID}")
-    public ResponseEntity<ArrayList<String>> playFirst(@PathVariable int matchID) throws SQLException, ClassNotFoundException {
-        return ResponseEntity.ok(matchService.startFirstInnings((int) matchRepository.getOversByMatchID(matchID)));
+    @RequestMapping("/startFirstInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    public ResponseEntity<ArrayList<String>> playFirst(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID) throws SQLException, ClassNotFoundException {
+        return ResponseEntity.ok(matchService.startFirstInnings((int) matchRepository.getOversByMatchID(matchID), matchID, BatTeamID, BallTeamID));
     }
 
     //play second innings
-    @RequestMapping("/startSecondInnings/{matchID}")
-    public ResponseEntity<ArrayList<String>> playMatch(@PathVariable int matchID) throws SQLException, ClassNotFoundException {
-       return ResponseEntity.ok(matchService.startSecondInnings((int) matchRepository.getOversByMatchID(matchID)));
+    @RequestMapping("/startSecondInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    public ResponseEntity<ArrayList<String>> playMatch(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID) throws SQLException, ClassNotFoundException {
+        return ResponseEntity.ok(matchService.startSecondInnings((int) matchRepository.getOversByMatchID(matchID), matchID, BatTeamID, BallTeamID));
     }
 
     //add first two batsman, to begin innings.
@@ -57,7 +56,7 @@ public class MatchController {
     //next bowler
     @PostMapping("/overChange/{matchID}/{teamID}")
     public String nextOverBy(@PathVariable int matchID,@PathVariable int teamID ,@RequestBody String player) throws SQLException {
-           return inningService.overBy(matchID,teamID,player);
+        return inningService.overBy(matchID,teamID,player);
     }
 
     //play Over.

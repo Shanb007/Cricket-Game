@@ -32,19 +32,19 @@ public class ScoreBoardServiceImpl implements ScoreBoardService {
         }
     }
 
-    public void viewScoreBoard(Matches match, Team BatTeam,Team BowlTeam,ArrayList<Player> players, ArrayList<Player> bowl, String inning, ArrayList<String> wicketsFallen) throws SQLException {
+    public void viewScoreBoard(Matches match, Team BatTeam,Team BowlTeam,ArrayList<Player> players, ArrayList<Player> bowl, String inning, ArrayList<String> wicketsFallen) {
         System.out.println("\n-----------------------------------------------------------------------------------------------------");
         System.out.println("ScoreCard after "+ inning + " Innings:");
         System.out.println("\nBatsman\t\tRuns\t\t4s\t\t\t6s\t\t\tTB\t\t\tWicket Taken By");
         for (Player value : players) {
             System.out.println(value.getName() + "\t\t\t" + value.getRunsScored() + "\t\t\t" + value.getNumberOf4s() + "\t\t\t" + value.getNumberOf6s() + "\t\t\t" + value.TotalBallsPlayed() + "\t\t\t"+ value.getWicketTakenBy());
             //figure out how to extract matchID
-            playerRepository.setDataPlayerMatchDetailsDB(playerRepository.getPlayerIdByTeamIdAndPlayerName(teamRepository.getIdByTeamName(BatTeam.getTeam()),value.getName()),match.getMatchID(),value);
+       //     playerRepository.setDataPlayerMatchDetailsDB(playerRepository.getPlayerIdByTeamIdAndPlayerName(teamRepository.getIdByTeamName(BatTeam.getTeam()),value.getName()),1,match.getMatchID(),value);
         }
         System.out.println("\n\nBowler\t\tOvers Bowled\t\tWickets\t\tNB\t\t\tWB\t\t\tRuns Given");
         for(Player value : bowl){
             System.out.println(value.getName()+"\t\t\t\t"+ MatchUtils.oversBowled(value.getBallsBowled())+"\t\t\t\t"+ value.getWicketsTaken()+"\t\t\t"+ value.getNoBallsBowled()+"\t\t\t"+ value.getWideBallsBowled()+"\t\t\t"+ value.getRunsGiven());
-            playerRepository.setDataPlayerMatchDetailsDB(playerRepository.getPlayerIdByTeamIdAndPlayerName(teamRepository.getIdByTeamName(BowlTeam.getTeam()),value.getName()),match.getMatchID(),value);
+          //  playerRepository.setDataPlayerMatchDetailsDB(playerRepository.getPlayerIdByTeamIdAndPlayerName(teamRepository.getIdByTeamName(BowlTeam.getTeam()),value.getName()),1,match.getMatchID(),value);
         }
 
 

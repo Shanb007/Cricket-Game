@@ -96,4 +96,19 @@ public class BallRepository {
         return outcome;
     }
 
+    public boolean checkIfMatchFirstBall(int matchID, int teamID, String inning){
+        try {
+            String sqlQuery = "SELECT * FROM PerBallDetails WHERE matchID = ? AND BattingTeamID = ? AND inning = ? ";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setInt(1, matchID);
+            statement.setInt(2,teamID);
+            statement.setString(3,inning);
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

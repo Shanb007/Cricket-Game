@@ -2,7 +2,6 @@ package com.tekion.game.Repository;
 
 import com.tekion.game.bean.Matches;
 import com.tekion.game.dbconnector.MySQLConnector;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -125,7 +124,7 @@ public class MatchRepository {
 
     public ArrayList<ArrayList<String>> getBattingScoreBoard(int matchID, int teamID) throws SQLException {
         ArrayList<ArrayList<String>> ScoreCard = new ArrayList<>();
-        String sqlQuery = "select PlayersMatchDetails.playerID, PlayersMatchDetails.runsScored, PlayersMatchDetails.ballsPlayed,PlayersMatchDetails.numberOf4s, PlayersMatchDetails.numberOf6s,PlayersMatchDetails.wicketTakenBy FROM PlayersMatchDetails inner join Players ON Players.PlayerID = PlayersMatchDetails.playerID WHERE matchID = ? AND teamID = ? AND DidBat = ?";
+        String sqlQuery = "select PlayersMatchDetails.playerID, PlayersMatchDetails.runsScored, PlayersMatchDetails.ballsPlayed,PlayersMatchDetails.numberOf4s, PlayersMatchDetails.numberOf6s,PlayersMatchDetails.wicketTakenBy FROM PlayersMatchDetails inner join Players ON Players.PlayerID = PlayersMatchDetails.playerID WHERE matchID = ? AND PlayersMatchDetails.teamID = ? AND DidBat = ?";
         PreparedStatement statement = conn.prepareStatement(sqlQuery);
         statement.setInt(1,matchID);
         statement.setInt(2,teamID);
@@ -142,7 +141,7 @@ public class MatchRepository {
             ScoreCard.add(batsman);
         }
         // bowlers of 2nd team.
-        String sqlQuery1 = "select PlayersMatchDetails.playerID, PlayersMatchDetails.oversBowled, PlayersMatchDetails.wicketsTaken, PlayersMatchDetails.noBallsBowled, PlayersMatchDetails.wideBallsBowled, PlayersMatchDetails.runsGiven FROM PlayersMatchDetails inner join Players ON Players.PlayerID = PlayersMatchDetails.playerID WHERE matchID = ? AND teamID = ? AND DidBall = ? ";
+        String sqlQuery1 = "select PlayersMatchDetails.playerID, PlayersMatchDetails.oversBowled, PlayersMatchDetails.wicketsTaken, PlayersMatchDetails.noBallsBowled, PlayersMatchDetails.wideBallsBowled, PlayersMatchDetails.runsGiven FROM PlayersMatchDetails inner join Players ON Players.PlayerID = PlayersMatchDetails.playerID WHERE matchID = ? AND PlayersMatchDetails.teamID = ? AND DidBall = ? ";
         PreparedStatement statement1 = conn.prepareStatement(sqlQuery1);
         statement1.setInt(1,matchID);
         statement1.setInt(2,getBowlingTeamIDbyBatTeamAndMatchID(matchID,teamID));
@@ -163,6 +162,18 @@ public class MatchRepository {
     }
 
     private int getBowlingTeamIDbyBatTeamAndMatchID(int matchID,int teamID) throws SQLException {
+        String sqlQuery = "select TeamA_ID, TeamB_ID FROM Matches where MatchID = ? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        if(rs.getInt("TeamA_ID")==teamID){
+            return rs.getInt("TeamB_ID");
+        }
+        return rs.getInt("TeamA_ID");
+    }
+
+    public int getOtherTeamIDbyMatchIDAndOneTeamID(int matchID, int teamID) throws SQLException {
         String sqlQuery = "select TeamA_ID, TeamB_ID FROM Matches where MatchID = ? ";
         PreparedStatement statement = conn.prepareStatement(sqlQuery);
         statement.setInt(1,matchID);
