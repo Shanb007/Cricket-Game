@@ -105,7 +105,7 @@ public class MatchRepository {
 
     public ArrayList<ArrayList<String>> getAllCompletedMatches() throws SQLException {
         ArrayList<ArrayList<String>> matches = new ArrayList<>();
-        String sqlQuery = "select Matches.MatchID, Matches.TeamA_ID, Matches.TeamB_ID, Matches.TotalOvers, MatchResults.tossWinner, MatchResults.tossWinnerChoice, MatchResults.Match_Winner from Matches INNER JOIN MatchResults ON Matches.MatchID = MatchResults.MatchID";
+        String sqlQuery = "select Matches.MatchID, Matches.TeamA_ID, Matches.TeamB_ID, Matches.TotalOvers, Matches.tossWinner, Matches.tossWinnerChoice, MatchResults.Match_Winner from Matches INNER JOIN MatchResults ON Matches.MatchID = MatchResults.MatchID";
         PreparedStatement statement = conn.prepareStatement(sqlQuery);
         ResultSet rs = statement.executeQuery();
         while (rs.next()){
