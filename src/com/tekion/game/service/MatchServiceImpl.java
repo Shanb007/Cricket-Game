@@ -17,8 +17,8 @@ import java.util.Random;
 @Service
 public class MatchServiceImpl implements MatchService {
     // two teams to be declared for a match
-    private final Team FirstInningsTeam  = new Team();
-    private final Team SecondInningsTeam = new Team();
+    private Team FirstInningsTeam  = new Team();
+    private Team SecondInningsTeam = new Team();
     TeamRepository teamRepository = new TeamRepository();
     MatchRepository matchRepository = new MatchRepository();
     ScoreBoardRepository scoreBoardRepository = new ScoreBoardRepository();
@@ -68,38 +68,54 @@ public class MatchServiceImpl implements MatchService {
         matches.setTotalOvers(overs);
         matchRepository.setMatchDBMatchDetails(matches);
         matches.setMatchID(matchRepository.getMatchIDbyTeamsIDAndStatus(teamA.getTeamID(),teamB.getTeamID(),"ongoing"));
-    return "Match Created, Match id: "+matches.getMatchID()+" Team to bat first: "+teamA.getTeamName()+" First Inning Team ID: "+teamA.getTeamID()+" Team to bat second: "+teamB.getTeamName()+" Second Inning Team ID: "+teamB.getTeamID();
+        return "Match Created, Match id: "+matches.getMatchID()+" Team to bat first: "+teamA.getTeamName()+" First Inning Team ID: "+teamA.getTeamID()+" Team to bat second: "+teamB.getTeamName()+" Second Inning Team ID: "+teamB.getTeamID();
     }
 
 //teamA is always firstInnings team.
 
-    public ArrayList<String> startFirstInnings(int overs) throws SQLException, ClassNotFoundException {
+    public ArrayList<String> startFirstInnings(int overs, int matchID, int BatTeamID, int BallTeamID) throws SQLException, ClassNotFoundException {
         InningServiceImpl FirstInningService = new InningServiceImpl();
-       return  FirstInningService.InitiateInnings(matches,FirstInningsTeam,SecondInningsTeam,overs,"1st");
+        teamRepository.setScoreBoard(matchID,BatTeamID);
+        teamRepository.setScoreBoard(matchID,BallTeamID);
+        FirstInningsTeam = teamRepository.getTeamScorecardRequested(matchID,BatTeamID);
+        SecondInningsTeam = teamRepository.getTeamScorecardRequested(matchID,BallTeamID);
+        return  FirstInningService.InitiateInnings(matchID,FirstInningsTeam,SecondInningsTeam,overs,"1st");
     }
 
-    public ArrayList<String> startSecondInnings(int overs) throws SQLException, ClassNotFoundException {
+    public ArrayList<String> startSecondInnings(int overs, int matchID, int BatTeamID, int BallTeamID) throws SQLException, ClassNotFoundException {
         InningServiceImpl SecondInningService = new InningServiceImpl();
-        return SecondInningService.InitiateInnings(matches,SecondInningsTeam,FirstInningsTeam,overs,"2nd");
+        SecondInningsTeam = teamRepository.getTeamScorecardRequested(matchID,BatTeamID);
+        FirstInningsTeam = teamRepository.getTeamScorecardRequested(matchID,BallTeamID);
+        return SecondInningService.InitiateInnings(matchID,SecondInningsTeam,FirstInningsTeam,overs,"2nd");
     }
 
-    public void ShowResults() throws SQLException {
+    public String ShowResults(int matchID, int TeamA_ID, int TeamB_ID) throws SQLException {
         System.out.println();
+        FirstInningsTeam = teamRepository.getTeamScorecardRequested(matchID,TeamA_ID);
+        SecondInningsTeam = teamRepository.getTeamScorecardRequested(matchID,TeamB_ID);
         if (FirstInningsTeam.TeamScore() == SecondInningsTeam.TeamScore()){
             System.out.println("Match Tied.\n\n");
-            setMatchBeanResult("Tied",FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            setMatchBeanResult(matchID,"Tied",FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            matchRepository.setDBMatchResults(matches);
+            scoreBoardRepository.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
+            return "Match Id: "+matchID+". Match Tied.";
         }
         if (FirstInningsTeam.TeamScore() > SecondInningsTeam.TeamScore()){
             System.out.println(FirstInningsTeam.getTeam() + " won by " + (FirstInningsTeam.TeamScore()-SecondInningsTeam.TeamScore()) + " runs.\n\n");
-            setMatchBeanResult(FirstInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            setMatchBeanResult(matchID,FirstInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            matchRepository.setDBMatchResults(matches);
+            scoreBoardRepository.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
+            return FirstInningsTeam.getTeam() + " won by " + (FirstInningsTeam.TeamScore()-SecondInningsTeam.TeamScore()) + " runs.";
         }
         if (FirstInningsTeam.TeamScore() < SecondInningsTeam.TeamScore()){
             System.out.println(SecondInningsTeam.getTeam() + " won by " + (10-SecondInningsTeam.totalWicketsGone() + " wickets.\n\n"));
-            setMatchBeanResult(SecondInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            setMatchBeanResult(matchID,SecondInningsTeam.getTeam(),FirstInningsTeam.TeamScore(),FirstInningsTeam.totalWicketsGone(),SecondInningsTeam.TeamScore(), SecondInningsTeam.totalWicketsGone());
+            matchRepository.setDBMatchResults(matches);
+            scoreBoardRepository.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
+            return SecondInningsTeam.getTeam() + " won by " + (10-SecondInningsTeam.totalWicketsGone()) + " wickets.";
+            // System.out.println(matches.getMatchID());
         }
-        matchRepository.setDBMatchResults(matches);
-        scoreBoardRepository.setScoreBoardDBDetails(matches,FirstInningsTeam.getTeam(),SecondInningsTeam.getTeam());
-        // System.out.println(matches.getMatchID());
+        return "?";
     }
 
     private void setMatchBeanMatchDetails(int TeamA_ID,int TeamB_ID, String tossWinner, String tossWinnerChoice){
@@ -110,7 +126,8 @@ public class MatchServiceImpl implements MatchService {
         matches.setTossWinnerChoice(tossWinnerChoice);
     }
 
-    private void setMatchBeanResult(String MatchWinner,int TeamAScore, int TeamAWicketsFallen,int TeamBScore, int TeamBWicketsFallen){
+    private void setMatchBeanResult(int id, String MatchWinner,int TeamAScore, int TeamAWicketsFallen,int TeamBScore, int TeamBWicketsFallen){
+        matches.setMatchID(id);
         matches.setMatch_Winner(MatchWinner);
         matches.setTeamA_Score(TeamAScore);
         matches.setTeamB_Score(TeamBScore);

@@ -14,6 +14,8 @@ public class Player {
     private String wicketTakenBy;
     private String didBat;
     private String didBall;
+    private int playerID;
+    private double oversBowled;
 
     public Player(String PlayerName){
         this.PlayerName = PlayerName;
@@ -29,6 +31,7 @@ public class Player {
         this.wicketTakenBy = "-";
         this.didBall= "N";
         this.didBat = "N";
+        this.oversBowled = 0.0;
     }
 
     public String getName(){
@@ -129,5 +132,55 @@ public class Player {
 
     public void setDidBat(String didBat) {
         this.didBat = didBat;
+    }
+
+
+    public void setOversBowled(double oversBowled) {
+        this.oversBowled = oversBowled;
+    }
+
+    public void setWideBallsBowled(int wideBallsBowled) {
+        this.wideBallsBowled = wideBallsBowled;
+    }
+
+
+    public void setRunsScored(int runsScored) {
+        this.runsScored = runsScored;
+    }
+
+    public void setWicketsTaken(int wicketsTaken) {
+        this.wicketsTaken = wicketsTaken;
+    }
+
+    public void setRunsGiven(int runsGiven) {
+        this.runsGiven = runsGiven;
+    }
+
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
+
+    public void setNumberOf6s(int numberOf6s) {
+        this.numberOf6s = numberOf6s;
+    }
+
+    public void setNumberOf4s(int numberOf4s) {
+        this.numberOf4s = numberOf4s;
+    }
+
+    public void setNoBallsBowled(int noBallsBowled) {
+        this.noBallsBowled = noBallsBowled;
+    }
+
+    public void setBallsPlayed(int ballsPlayed) {
+        BallsPlayed = ballsPlayed;
+    }
+
+    public int getPlayerID() {
+        return playerID;
+    }
+
+    public double getOversBowled() {
+        return oversBowled;
     }
 }

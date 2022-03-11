@@ -15,10 +15,10 @@ public class BallRepository {
     public BallRepository() throws SQLException, ClassNotFoundException {
     }
 
-    public void setBallDetailsDB(Matches match, int batTeamID ,int ballNumber, int currentOver, String ballOutcome, int batsmanID, int bowlerID, String inning) throws SQLException {
+    public void setBallDetailsDB(int matchID, int batTeamID ,int ballNumber, int currentOver, String ballOutcome, int batsmanID, int bowlerID, String inning) throws SQLException {
         String sqlQuery = "Insert into PerBallDetails(matchID,BattingTeamID,ballNumber,currentOver,ballOutcome,BatsmanID,BowlerID,Inning) VALUES (?,?,?,?,?,?,?,?)";
         PreparedStatement statement = conn.prepareStatement(sqlQuery);
-        statement.setInt(1,match.getMatchID());
+        statement.setInt(1,matchID);
         statement.setInt(2,batTeamID);
         statement.setInt(3,ballNumber);
         statement.setInt(4,currentOver);
@@ -60,6 +60,55 @@ public class BallRepository {
             overInfo.add(ballInfo);
         }
         return overInfo;
+    }
+
+    public String getLastBallPlayedOutcome(int matchID, int BatTeamID) throws SQLException {
+        String sqlQuery = "SELECT ballOutcome FROM PerBallDetails WHERE matchID = ? AND BattingTeamID = ? ORDER BY ballID DESC LIMIT 1";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        statement.setInt(2,BatTeamID);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        return rs.getString("ballOutcome");
+    }
+
+    public int getLastBallNumberPlayed(int matchID, int BatTeamID) throws SQLException {
+        String sqlQuery = "SELECT ballNumber FROM PerBallDetails WHERE matchID = ? AND BattingTeamID = ? ORDER BY ballID DESC LIMIT 1";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        statement.setInt(2,BatTeamID);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        return rs.getInt("ballNumber");
+    }
+
+    public ArrayList<String> getOverOutcomeTillWicketFell(int matchID, int BatTeamID) throws SQLException {
+        ArrayList<String> outcome = new ArrayList<>();
+        String sqlQuery = "SELECT ballOutcome FROM PerBallDetails WHERE matchID = ? AND BattingTeamID = ? ORDER BY ballID DESC LIMIT ?";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        statement.setInt(2,BatTeamID);
+        statement.setInt(3,getLastBallNumberPlayed(matchID,BatTeamID)%6);
+        ResultSet rs = statement.executeQuery();
+        while(rs.next()){
+            outcome.add(rs.getString("ballOutcome"));
+        }
+        return outcome;
+    }
+
+    public boolean checkIfMatchFirstBall(int matchID, int teamID, String inning){
+        try {
+            String sqlQuery = "SELECT * FROM PerBallDetails WHERE matchID = ? AND BattingTeamID = ? AND inning = ? ";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setInt(1, matchID);
+            statement.setInt(2,teamID);
+            statement.setString(3,inning);
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

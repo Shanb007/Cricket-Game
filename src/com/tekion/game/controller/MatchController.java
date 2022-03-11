@@ -1,7 +1,6 @@
 package com.tekion.game.controller;
 
 import com.tekion.game.Repository.MatchRepository;
-import com.tekion.game.models.Player;
 import com.tekion.game.service.InningServiceImpl;
 import com.tekion.game.service.MatchServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Match")
@@ -26,39 +26,43 @@ public class MatchController {
     //match created with number of overs.
     @RequestMapping("/create/{overs}")
     public String startGame(@PathVariable int overs) throws SQLException{
-    return matchService.matchDeclaration(overs);
+        return matchService.matchDeclaration(overs);
     }
 
     //play first innings
-    @RequestMapping("/startFirstInnings/{matchID}")
-    public ResponseEntity<ArrayList<String>> playFirst(@PathVariable int matchID) throws SQLException, ClassNotFoundException {
-        return ResponseEntity.ok(matchService.startFirstInnings((int) matchRepository.getOversByMatchID(matchID)));
+    @RequestMapping("/startFirstInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    public ResponseEntity<ArrayList<String>> playFirst(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID) throws SQLException, ClassNotFoundException {
+        return ResponseEntity.ok(matchService.startFirstInnings((int) matchRepository.getOversByMatchID(matchID), matchID, BatTeamID, BallTeamID));
     }
 
     //play second innings
-    @RequestMapping("/startSecondInnings/{matchID}/{BatTeamID}")
-    public ResponseEntity<ArrayList<String>> playMatch(@PathVariable int matchID) throws SQLException, ClassNotFoundException {
-       return ResponseEntity.ok(matchService.startSecondInnings((int) matchRepository.getOversByMatchID(matchID)));
+    @RequestMapping("/startSecondInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    public ResponseEntity<ArrayList<String>> playMatch(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID) throws SQLException, ClassNotFoundException {
+        return ResponseEntity.ok(matchService.startSecondInnings((int) matchRepository.getOversByMatchID(matchID), matchID, BatTeamID, BallTeamID));
     }
 
+    //add first two batsman, to begin innings.
+    @PostMapping("/initialBatPlayers/{matchID}/{teamID}")
+    public ResponseEntity<String> initiateBatsman(@PathVariable int matchID, @PathVariable int teamID, @RequestBody Map<String, String> json ) throws SQLException {
+        return ResponseEntity.ok(inningService.addFirstTwoBatsman(matchID,teamID,json.get("Bat1"),json.get("Bat2")));
+    }
 
-
-    //creating batting line up
-    @PostMapping("/addBatsman/{matchID}/{teamID}")
-    public String addBatsman(@PathVariable int matchID,@PathVariable int teamID ,@RequestBody String player) throws SQLException {
-        return inningService.addBatPlayer(matchID,teamID,player);
+    //add batsman, after wicket.
+    @PostMapping("/addBatsmanAfterWicket/{matchID}/{BatTeamID}")
+    public String addBatsman(@PathVariable int matchID,@PathVariable int BatTeamID ,@RequestBody String player) throws SQLException {
+        return inningService.addBatPlayerAfterWicket(matchID,BatTeamID,player);
     }
 
     //next bowler
     @PostMapping("/overChange/{matchID}/{teamID}")
     public String nextOverBy(@PathVariable int matchID,@PathVariable int teamID ,@RequestBody String player) throws SQLException {
-           return inningService.overBy(matchID,teamID,player);
+        return inningService.overBy(matchID,teamID,player);
     }
 
     //play Over.
-    @RequestMapping("/playOver/{matchID}")
-    public String playOver(@PathVariable int matchID) throws SQLException {
-        return inningService.playOver(matchID);
+    @RequestMapping("/playOver/{matchID}/{inning}/{BatTeamID}/{BallTeamID}/{ballingPlayerID}")
+    public String playOver(@PathVariable int matchID, @PathVariable String inning, @PathVariable int BatTeamID, @PathVariable int BallTeamID, @PathVariable int ballingPlayerID) throws SQLException {
+        return inningService.playOver(matchID,inning,BatTeamID,BallTeamID,ballingPlayerID);
     }
 
 

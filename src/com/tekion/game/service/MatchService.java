@@ -8,7 +8,7 @@ import java.util.ArrayList;
 @Service
 public interface MatchService {
     String matchDeclaration(int overs) throws SQLException;
-    ArrayList<String> startFirstInnings(int overs) throws SQLException, ClassNotFoundException;
-    ArrayList<String> startSecondInnings(int overs) throws SQLException, ClassNotFoundException;
-    void ShowResults() throws SQLException;
+    ArrayList<String> startFirstInnings(int overs, int matchID, int BatTeamID, int BallTeamID) throws SQLException, ClassNotFoundException;
+    ArrayList<String> startSecondInnings(int overs, int matchID, int BatTeamID, int BallTeamID) throws SQLException, ClassNotFoundException;
+    String ShowResults(int matchID, int TeamA_ID, int TeamB_ID) throws SQLException;
 }

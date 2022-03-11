@@ -51,24 +51,61 @@ public class PlayerRepository {
         return rs.getInt(1);
     }
 
-    public void setDataPlayerMatchDetailsDB(int playerID, int matchID, Player player) throws SQLException {
-        String sqlQuery = "INSERT INTO PlayersMatchDetails (playerID,matchID,runsScored,ballsPlayed,numberOf4s,numberOf6s,wicketTakenBy,oversBowled,wicketsTaken,noBallsBowled,wideBallsBowled,runsGiven,DidBat,DidBall) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        PreparedStatement statement = conn.prepareStatement(sqlQuery);
-        statement.setInt(1,playerID);
-        statement.setInt(2,matchID);
-        statement.setInt(3,player.getRunsScored());
-        statement.setInt(4,player.TotalBallsPlayed());
-        statement.setInt(5,player.getNumberOf4s());
-        statement.setInt(6,player.getNumberOf6s());
-        statement.setString(7,player.getWicketTakenBy());
-        statement.setDouble(8, MatchUtils.oversBowled(player.getBallsBowled()));
-        statement.setInt(9,player.getWicketsTaken());
-        statement.setInt(10,player.getNoBallsBowled());
-        statement.setInt(11,player.getWideBallsBowled());
-        statement.setInt(12,player.getRunsGiven());
-        statement.setString(13,player.getDidBat());
-        statement.setString(14,player.getDidBall());
-        statement.execute();
+    private boolean checkIfPlayerAlreadyPlayingTheMatch(int matchID, int teamID, int playerID){
+        try {
+            String sqlQuery = "SELECT playerId , teamId , matchID FROM PlayersMatchDetails WHERE matchID = ? AND teamId = ? AND playerID = ?";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setInt(1 , matchID);
+            statement.setInt(2 , teamID);
+            statement.setInt(3,playerID);
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    public void setDataPlayerMatchDetailsDB(int playerID, int teamID ,int matchID, Player player, String role) throws SQLException {
+        if(!checkIfPlayerAlreadyPlayingTheMatch(matchID,teamID,playerID)) {
+            String sqlQuery = "INSERT INTO PlayersMatchDetails (playerID,matchID,teamID,runsScored,ballsPlayed,numberOf4s,numberOf6s,wicketTakenBy,oversBowled,wicketsTaken,noBallsBowled,wideBallsBowled,runsGiven,DidBat,DidBall) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setInt(1, playerID);
+            statement.setInt(2, matchID);
+            statement.setInt(3, teamID);
+            statement.setInt(4, player.getRunsScored());
+            statement.setInt(5, player.TotalBallsPlayed());
+            statement.setInt(6, player.getNumberOf4s());
+            statement.setInt(7, player.getNumberOf6s());
+            statement.setString(8, player.getWicketTakenBy());
+            statement.setDouble(9, MatchUtils.oversBowled(player.getBallsBowled()));
+            statement.setInt(10, player.getWicketsTaken());
+            statement.setInt(11, player.getNoBallsBowled());
+            statement.setInt(12, player.getWideBallsBowled());
+            statement.setInt(13, player.getRunsGiven());
+            statement.setString(14, player.getDidBat());
+            statement.setString(15, player.getDidBall());
+            statement.execute();
+        }
+        else if (role.equals("Bat")){
+            String sqlQuery = "UPDATE PlayersMatchDetails SET DidBat = ? WHERE matchID = ? AND playerID = ? AND teamID = ? ";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setString(1,player.getDidBat());
+            statement.setInt(2,matchID);
+            statement.setInt(3,playerID);
+            statement.setInt(4,teamID);
+            statement.execute();
+        }
+        else if(role.equals("Ball")){
+            String sqlQuery = "UPDATE PlayersMatchDetails SET DidBall = ? WHERE matchID = ? AND playerID = ? AND teamID = ? ";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setString(1,player.getDidBall());
+            statement.setInt(2,matchID);
+            statement.setInt(3,playerID);
+            statement.setInt(4,teamID);
+            statement.execute();
+        }
     }
 
     public String getPlayerDetails(int playerID,int matchID) throws SQLException {
@@ -119,5 +156,114 @@ public class PlayerRepository {
             allPlayers.add(players);
         }
         return allPlayers;
+    }
+
+    public boolean checkIfBowlerAlreadyInMatch(int playerID, int matchID){
+        try {
+            String sqlQuery = "Select * from PlayersMatchDetails where playerID=? and matchID=? and DidBall=?";
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            statement.setInt(1, playerID);
+            statement.setInt(2, matchID);
+            statement.setString(3, "Y");
+            ResultSet rs = statement.executeQuery();
+            return rs.next();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Player getNextOverBowlerRequested(int matchID, int teamID, String playerName) throws SQLException {
+        int playerID = getPlayerIdByTeamIdAndPlayerName(teamID,playerName);
+        Player currentBowlerRequested = new Player(playerName);
+        String sqlQuery = "SELECT * FROM PlayersMatchDetails where playerID=? and matchID=? and DidBall=? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,playerID);
+        statement.setInt(2,matchID);
+        statement.setString(3,"Y");
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        currentBowlerRequested.setRunsGiven(rs.getInt("runsGiven"));
+        currentBowlerRequested.setOversBowled(rs.getDouble("oversBowled"));
+        currentBowlerRequested.setDidBall(rs.getString("DidBall"));
+        currentBowlerRequested.setNoBallsBowled(rs.getInt("noBallsBowled"));
+        currentBowlerRequested.setPlayerID(rs.getInt("playerID"));
+        currentBowlerRequested.setWicketsTaken(rs.getInt("wicketsTaken"));
+        currentBowlerRequested.setWideBallsBowled(rs.getInt("wideBallsBowled"));
+        return currentBowlerRequested;
+    }
+
+    public Player getNextOverBowlerRequested(int matchID, int playerID) throws SQLException {
+        // int playerID = getPlayerIdByTeamIdAndPlayerName(teamID,playerName);
+        Player currentBowlerRequested = new Player(getPlayerName(playerID));
+        String sqlQuery = "SELECT * FROM PlayersMatchDetails WHERE playerID=? and matchID=? and DidBall=? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,playerID);
+        statement.setInt(2,matchID);
+        statement.setString(3,"Y");
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        currentBowlerRequested.setRunsGiven(rs.getInt("runsGiven"));
+        currentBowlerRequested.setOversBowled(rs.getDouble("oversBowled"));
+        currentBowlerRequested.setDidBall(rs.getString("DidBall"));
+        currentBowlerRequested.setNoBallsBowled(rs.getInt("noBallsBowled"));
+        currentBowlerRequested.setPlayerID(rs.getInt("playerID"));
+        currentBowlerRequested.setWicketsTaken(rs.getInt("wicketsTaken"));
+        currentBowlerRequested.setWideBallsBowled(rs.getInt("wideBallsBowled"));
+        return currentBowlerRequested;
+    }
+
+    public ArrayList<Player> getBatsmanOnField(int matchID, int teamID) throws SQLException {
+        ArrayList<Player> batsmanOnField = new ArrayList<>();
+        String sqlQuery = "SELECT * FROM PlayersMatchDetails where matchID = ? and teamID = ? AND wicketTakenBy = ? AND DidBat = ? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setInt(1,matchID);
+        statement.setInt(2,teamID);
+        //statement.setString(3,"Y");
+        statement.setString(3,"-");
+        statement.setString(4,"Y");
+        ResultSet rs = statement.executeQuery();
+        while(rs.next()){
+            Player player = new Player(getPlayerName(rs.getInt("playerID")));
+            player.setPlayerID(rs.getInt("playerID"));
+            player.setRunsScored(rs.getInt("runsScored"));
+            player.setBallsPlayed(rs.getInt("ballsPlayed"));
+            player.setNumberOf4s(rs.getInt("numberOf4s"));
+            player.setNumberOf6s(rs.getInt("numberOf6s"));
+            batsmanOnField.add(player);
+        }
+        return batsmanOnField;
+    }
+
+    public void updateBowlerStatsInDB(int matchID, int teamID, Player bowler) throws SQLException {
+        String sqlQuery = "UPDATE PlayersMatchDetails SET oversBowled = ? , wicketsTaken = ? , noBallsBowled = ? , wideBallsBowled = ? , runsGiven = ? WHERE playerID = ? AND matchID = ? AND teamID = ? ";
+        PreparedStatement statement = conn.prepareStatement(sqlQuery);
+        statement.setDouble(1,MatchUtils.oversBowled(bowler.getBallsBowled()));
+        statement.setInt(2,bowler.getWicketsTaken());
+        statement.setInt(3, bowler.getNoBallsBowled());
+        statement.setInt(4,bowler.getWideBallsBowled());
+        statement.setInt(5,bowler.getRunsGiven());
+        statement.setInt(6,bowler.getPlayerID());
+        statement.setInt(7,matchID);
+        statement.setInt(8,teamID);
+        statement.execute();
+    }
+
+    public void updateOnFieldBatsmanStatsIDB(int matchID, int teamID, ArrayList<Player> onFieldBat) throws SQLException {
+        for (Player value: onFieldBat){
+            String sqlQuery = "UPDATE PlayersMatchDetails SET runsScored = ? , ballsPlayed = ? , numberOf4s = ? , numberOf6s = ? , wicketTakenBy = ?, DidBat = ? WHERE playerID = ? AND matchID = ? AND teamID = ? ";
+            PreparedStatement statement  = conn.prepareStatement(sqlQuery);
+            statement.setInt(1,value.getRunsScored());
+            statement.setInt(2,value.TotalBallsPlayed());
+            statement.setInt(3,value.getNumberOf4s());
+            statement.setInt(4,value.getNumberOf6s());
+            statement.setString(5,value.getWicketTakenBy());
+            statement.setString(6,value.getDidBat());
+            statement.setInt(7,value.getPlayerID());
+            statement.setInt(8,matchID);
+            statement.setInt(9,teamID);
+            statement.execute();
+        }
     }
 }

@@ -9,6 +9,7 @@ public class Team {
     private int NoBall=0;
     private int WideBall=0;
     private int extraScore = 0;
+    private int playersBatted = 0;
 
 
     public void setTeamID(int teamID) {
@@ -76,5 +77,38 @@ public class Team {
     public void ExtraScoreTracker(int score){
         extraScore+=score;
     }
+
+    public void setCurrentOver(int currentOver) {
+        this.currentOver = currentOver;
+    }
+
+    public void setExtraScore(int extraScore) {
+        this.extraScore = extraScore;
+    }
+
+    public void setNoBall(int noBall) {
+        NoBall = noBall;
+    }
+
+    public void setTeamScore(int teamScore) {
+        this.teamScore = teamScore;
+    }
+
+    public void setWideBall(int wideBall) {
+        WideBall = wideBall;
+    }
+
+    public void setWicketsFallen(int wicketsFallen) {
+        this.wicketsFallen = wicketsFallen;
+    }
+
+    public void setPlayersBatted(int playersBatted) {
+        this.playersBatted = playersBatted;
+    }
+
+    public int getPlayersBatted() {
+        return playersBatted;
+    }
+
 }
 
