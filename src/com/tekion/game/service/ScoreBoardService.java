@@ -12,5 +12,5 @@ import java.util.ArrayList;
 @Service
 public interface ScoreBoardService {
     void viewScoreBoardAfterWicketOROver(ArrayList<Player> bat, ArrayList<Player> bowl );
-    void viewScoreBoard(Matches match, Team BatTeam, Team BowlTeam, ArrayList<Player> players, ArrayList<Player> bowl, String inning, ArrayList<String> wicketsFallen) throws SQLException;
+    void viewScoreBoard(Matches match, Team BatTeam, Team BowlTeam, ArrayList<Player> players, ArrayList<Player> bowl, String inning, ArrayList<String> wicketsFallen);
 }
