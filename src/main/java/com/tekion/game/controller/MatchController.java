@@ -30,13 +30,13 @@ public class MatchController {
     }
 
     //play first innings
-    @RequestMapping("/startFirstInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    @GetMapping("/startFirstInnings/{matchID}/{BatTeamID}/{BallTeamID}")
     public ResponseEntity<ArrayList<String>> playFirst(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID){
         return ResponseEntity.ok(matchService.startFirstInnings((int) matchService.getOversForMatch(matchID), matchID, BatTeamID, BallTeamID));
     }
 
     //play second innings
-    @RequestMapping("/startSecondInnings/{matchID}/{BatTeamID}/{BallTeamID}")
+    @GetMapping("/startSecondInnings/{matchID}/{BatTeamID}/{BallTeamID}")
     public ResponseEntity<ArrayList<String>> playMatch(@PathVariable int matchID,@PathVariable int BatTeamID, @PathVariable int BallTeamID){
         return ResponseEntity.ok(matchService.startSecondInnings((int) matchService.getOversForMatch(matchID), matchID, BatTeamID, BallTeamID));
     }
@@ -60,19 +60,19 @@ public class MatchController {
     }
 
     //play Over.
-    @RequestMapping("/playOver/{matchID}/{inning}/{BatTeamID}/{BallTeamID}/{ballingPlayerID}")
+    @GetMapping("/playOver/{matchID}/{inning}/{BatTeamID}/{BallTeamID}/{ballingPlayerID}")
     public String playOver(@PathVariable int matchID, @PathVariable String inning, @PathVariable int BatTeamID, @PathVariable int BallTeamID, @PathVariable int ballingPlayerID) throws SQLException{
         return inningService.playOver(matchID,inning,BatTeamID,BallTeamID,ballingPlayerID);
     }
 
     //show results
-    @RequestMapping("/result/{matchID}/{TeamA_ID}/{TeamB_ID}")
+    @GetMapping("/result/{matchID}/{TeamA_ID}/{TeamB_ID}")
     public String showResults(@PathVariable int matchID, @PathVariable int TeamA_ID, @PathVariable int TeamB_ID){
         return matchService.ShowResults(matchID,TeamA_ID,TeamB_ID);
     }
 
     //details of given match.
-    @RequestMapping("/getMatchDetails/{matchID}")
+    @GetMapping("/getMatchDetails/{matchID}")
     public ResponseEntity<List<MatchDetailDTO>> getMatchDetails(@PathVariable int matchID) throws SQLException {
         List<MatchDetailDTO> matchStats = matchService.matchDetails(matchID);
         return ResponseEntity.ok(matchStats);
@@ -80,21 +80,21 @@ public class MatchController {
 
 
     //returns all matches completed/ongoing.
-    @RequestMapping("/getAllMatches")
+    @GetMapping("/getAllMatches")
     public ResponseEntity<List<AllMatchesDTO>> getAllMatches(){
         List<AllMatchesDTO> allMatches = matchService.AllMatches();
         return ResponseEntity.ok(allMatches);
     }
 
     //returns all matches completed with their match results.
-    @RequestMapping("/getAllCompletedMatches")
+    @GetMapping("/getAllCompletedMatches")
     public ResponseEntity<List<MatchDetailDTO>> getAllCompletedMatches(){
         List<MatchDetailDTO> allCompletedMatches = matchService.AllCompletedMatches();
         return ResponseEntity.ok(allCompletedMatches);
     }
 
     //get ScoreBoard of the Match
-    @RequestMapping("/ScoreCard/{matchID}/{teamID}")
+    @GetMapping("/ScoreCard/{matchID}/{teamID}")
     public ResponseEntity<List<List<String>>> scoreBoard(@PathVariable int matchID, @PathVariable int teamID){
         List<List<String>> scoreCard = matchService.matchScoreBoard(matchID,teamID);
         return ResponseEntity.ok(scoreCard);
